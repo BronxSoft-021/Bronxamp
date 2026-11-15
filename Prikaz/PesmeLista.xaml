@@ -1,0 +1,94 @@
+<UserControl x:Class="Bronxamp.Prikaz.PesmeLista"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="clr-namespace:Bronxamp.Prikaz">
+    <UserControl.Resources>
+        <p:ImaUVidljivost x:Key="Ima" />
+
+        <Style x:Key="AlatReda" TargetType="Button" BasedOn="{StaticResource DugmeAlat}">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="22" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <!-- Number of the song; the playing one gets the arrow instead -->
+        <DataTemplate x:Key="CelijaRb">
+            <Grid>
+                <TextBlock x:Name="Rb" Text="{Binding Rb}" Foreground="{StaticResource Bled}" FontSize="12" VerticalAlignment="Center" />
+                <TextBlock x:Name="Znak" Text="&#xE768;" FontFamily="{StaticResource Ikone}" FontSize="10" Foreground="{StaticResource Akcenat}"
+                           VerticalAlignment="Center" Visibility="Collapsed" />
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Tekuca}" Value="True">
+                    <Setter TargetName="Znak" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="Rb" Property="Visibility" Value="Hidden" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CelijaNaslov">
+            <TextBlock x:Name="Naslov" Text="{Binding Naslov}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Tekuca}" Value="True">
+                    <Setter TargetName="Naslov" Property="Foreground" Value="{StaticResource Akcenat}" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CelijaIzvodjac">
+            <TextBlock x:Name="Izvodjac" Text="{Binding Izvodjac}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Tekuca}" Value="True">
+                    <Setter TargetName="Izvodjac" Property="Foreground" Value="{StaticResource Akcenat}" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CelijaAlati">
+            <StackPanel x:Name="Alati" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="Hidden">
+                <Button Style="{StaticResource AlatReda}" Content="&#xE893;" Tag="sledece" Click="NaSledece" ToolTip="Pusti sledeće (posle ove pesme)" />
+                <Button Style="{StaticResource AlatReda}" Content="&#xE710;" Tag="red" Click="NaURed" ToolTip="Dodaj u red (na kraj)" />
+                <Button Style="{StaticResource AlatReda}" Content="&#xE74D;" Tag="ukloni" Click="NaUkloni" ToolTip="Ukloni iz spiska (fajl ostaje na disku)" />
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                    <Setter TargetName="Alati" Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Album heading -->
+        <Grid Margin="0,0,0,14" Visibility="{Binding Album, Converter={StaticResource Ima}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Width="120" Height="120" CornerRadius="8" Background="{Binding Kartica.Preliv}" ClipToBounds="True">
+                <Image Source="{Binding Kartica.Omot}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+            </Border>
+            <WrapPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="18,0,0,0">
+                <Button Content="Pusti album" Style="{StaticResource DugmeGlavno}" Click="NaPustiAlbum" Margin="0,0,8,4" />
+                <Button Content="Pusti sledeće" Style="{StaticResource Dugme}" Click="NaAlbumSledece" Margin="0,0,8,4" />
+                <Button Content="Dodaj u red" Style="{StaticResource Dugme}" Click="NaAlbumURed" Margin="0,0,8,4" />
+                <Button Content="Ukloni iz biblioteke" Style="{StaticResource Dugme}" Click="NaAlbumUkloni" Margin="0,0,0,4" />
+            </WrapPanel>
+        </Grid>
+
+        <ListView x:Name="Lista" Grid.Row="1" Style="{StaticResource ListaKolona}" ItemsSource="{Binding Stavke}" SelectionMode="Extended"
+                  MouseDoubleClick="NaDvoklik" PreviewMouseRightButtonUp="NaDesniKlik" KeyDown="NaTaster">
+            <ListView.View>
+                <GridView AllowsColumnReorder="True" ColumnHeaderContainerStyle="{StaticResource ZaglavljeKolone}" />
+            </ListView.View>
+        </ListView>
+
+        <TextBlock Grid.Row="1" Text="{Binding Prazno}" Foreground="{StaticResource Mutan}" FontSize="16"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                   Visibility="{Binding Prazno, Converter={StaticResource Ima}}" />
+    </Grid>
+</UserControl>

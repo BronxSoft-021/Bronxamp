@@ -1,0 +1,28 @@
+<UserControl x:Class="Bronxamp.Prikaz.EmitovanoPrikaz"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="clr-namespace:Bronxamp.Prikaz">
+    <UserControl.Resources>
+        <p:ImaUVidljivost x:Key="Ima" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ComboBox Style="{StaticResource PadajuciSpisak}" ItemsSource="{Binding Dani}" DisplayMemberPath="Naziv" SelectedItem="{Binding Izabran}"
+                  Width="220" HorizontalAlignment="Left" Margin="0,0,0,12" />
+
+        <ListBox Grid.Row="1" Style="{StaticResource Lista}" ItemsSource="{Binding Linije}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,2" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock Grid.Row="1" Text="Još ništa nije emitovano." Foreground="{StaticResource Mutan}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding Linije.Count, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+    </Grid>
+</UserControl>

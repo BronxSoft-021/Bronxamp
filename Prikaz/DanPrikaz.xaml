@@ -1,0 +1,555 @@
+<UserControl x:Class="Bronxamp.Prikaz.DanPrikaz"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="clr-namespace:Bronxamp.Prikaz">
+    <UserControl.Resources>
+        <p:ImaUVidljivost x:Key="Ima" />
+        <p:JednakoUBool x:Key="Jednako" />
+        <BooleanToVisibilityConverter x:Key="BoolUVidljivost" />
+
+        <Style x:Key="AlatDana" TargetType="Button" BasedOn="{StaticResource DugmeAlat}">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="22" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style x:Key="RedDana" TargetType="ListViewItem" BasedOn="{StaticResource RedKolona}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Gotova}" Value="True">
+                    <Setter Property="Opacity" Value="0.45" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Istaknuta}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource Akcenat}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding JeJingl}" Value="True">
+                    <Setter Property="Foreground" Value="#6FC3D6" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Tekuca}" Value="True">
+                    <Setter Property="Background" Value="#3A2E1A" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="CelijaOdstupanje">
+            <TextBlock x:Name="Tekst" Text="{Binding Odstupanje}" FontSize="12.5" Foreground="{StaticResource Mutan}" HorizontalAlignment="Right" />
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding VanGranice}" Value="True">
+                    <Setter TargetName="Tekst" Property="Foreground" Value="{StaticResource Upozorenje}" />
+                    <Setter TargetName="Tekst" Property="FontWeight" Value="SemiBold" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CelijaAlati">
+            <StackPanel x:Name="Alati" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="Hidden">
+                <Button Style="{StaticResource AlatDana}" Content="&#xE70E;" Click="NaGore" ToolTip="Pomeri gore" />
+                <Button Style="{StaticResource AlatDana}" Content="&#xE70D;" Click="NaDole" ToolTip="Pomeri dole" />
+                <Button Style="{StaticResource AlatDana}" Content="&#xE711;" Click="NaUkloni" ToolTip="Izbaci iz dana" />
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                    <Setter TargetName="Alati" Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <Style x:Key="KarticaDana" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource Povrsina}" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+        <Style x:Key="BrojKoraka" TargetType="Border">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Background" Value="{StaticResource Akcenat}" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="BrojKorakaTekst" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#1B1206" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="NaslovKoraka" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Tekst}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <!-- One line of the day by the hours; a click opens what is in it -->
+        <DataTemplate x:Key="RedBloka">
+            <StackPanel>
+                <Border x:Name="Red" CornerRadius="7" Padding="8,6" Background="Transparent" Cursor="Hand" MouseLeftButtonUp="NaBlok">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="78" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="Vreme" Text="{Binding Vreme}" FontFamily="Consolas" FontSize="13" Foreground="{StaticResource Mutan}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="Strelica" Text="&#xE76C;" FontFamily="{StaticResource Ikone}" FontSize="9" Foreground="{StaticResource Mutan}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <TextBlock x:Name="Naziv" Text="{Binding Naziv}" FontSize="14" Foreground="{StaticResource Tekst}" TextTrimming="CharacterEllipsis" />
+                            <Border Background="#33333F" CornerRadius="9" Padding="7,1" Margin="8,0,0,0" VerticalAlignment="Center"
+                                    Visibility="{Binding JeEmisija, Converter={StaticResource BoolUVidljivost}}">
+                                <TextBlock Text="emisija" FontSize="11" Foreground="{StaticResource Mutan}" />
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Opis}" Foreground="{StaticResource Mutan}" FontSize="12.5" />
+                            <TextBlock Text="{Binding Visak, StringFormat='  ·  {0}'}" Foreground="{StaticResource Mutan}" FontSize="12.5"
+                                       Visibility="{Binding Visak, Converter={StaticResource Ima}}" ToolTip="Ove pesme ne staju u blok i neće se pustiti. Klik na red ih pokazuje." />
+                            <TextBlock Text="{Binding Upozorenje}" Foreground="{StaticResource Upozorenje}" FontSize="12.5" FontWeight="SemiBold" Margin="12,0,0,0"
+                                       Visibility="{Binding Upozorenje, Converter={StaticResource Ima}}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <StackPanel x:Name="Sadrzaj" Margin="86,2,8,10" Visibility="Collapsed">
+                    <ItemsControl ItemsSource="{Binding Stavke}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="72" />
+                                        <ColumnDefinition Width="92" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="54" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Pocetak}" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource Mutan}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding VrstaNaziv}" FontSize="12" Foreground="{StaticResource Mutan}" />
+                                    <TextBlock x:Name="Ime" Grid.Column="2" Text="{Binding Ceo}" FontSize="12.5" Foreground="{StaticResource Tekst}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Trajanje}" FontSize="12" Foreground="{StaticResource Mutan}" HorizontalAlignment="Right" />
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding JeJingl}" Value="True">
+                                        <Setter TargetName="Ime" Property="Foreground" Value="#6FC3D6" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Istaknuta}" Value="True">
+                                        <Setter TargetName="Ime" Property="Foreground" Value="{StaticResource Akcenat}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Ne staje u blok, ostaje van dana:" Foreground="{StaticResource Mutan}" FontSize="12" Margin="0,8,0,2"
+                               Visibility="{Binding ImaIzostavljenih, Converter={StaticResource BoolUVidljivost}}" />
+                    <ItemsControl ItemsSource="{Binding Izostavljene}" Opacity="0.6">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontSize="12.5" Foreground="{StaticResource Tekst}" Margin="164,1,0,0" TextTrimming="CharacterEllipsis" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding JeHit}" Value="True">
+                    <Setter TargetName="Red" Property="Background" Value="#2A2118" />
+                    <Setter TargetName="Naziv" Property="Foreground" Value="{StaticResource Akcenat}" />
+                    <Setter TargetName="Vreme" Property="Foreground" Value="{StaticResource Akcenat}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ImaUpozorenje}" Value="True">
+                    <Setter TargetName="Red" Property="Background" Value="#2E2A1E" />
+                </DataTrigger>
+                <Trigger SourceName="Red" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Red" Property="Background" Value="{StaticResource PovrsinaHover}" />
+                </Trigger>
+                <DataTrigger Binding="{Binding Otvoren}" Value="True">
+                    <Setter TargetName="Sadrzaj" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="Strelica" Property="Text" Value="&#xE70D;" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding JeKraj}" Value="True">
+                    <Setter TargetName="Naziv" Property="Foreground" Value="{StaticResource Mutan}" />
+                    <Setter TargetName="Strelica" Property="Visibility" Value="Hidden" />
+                    <Setter TargetName="Red" Property="Cursor" Value="Arrow" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- U etru: filters and the day's buttons -->
+        <DockPanel Margin="0,0,8,14" Visibility="{Binding NaDanu, Converter={StaticResource BoolUVidljivost}}">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="DugmePokreni" Content="Pokreni dan" Style="{StaticResource DugmeGlavno}" Command="{Binding PokreniCommand}" Padding="14,6" Margin="0,0,8,0"
+                        IsEnabled="{Binding MozePokretanje}" />
+                <Button Content="Zaustavi" Style="{StaticResource Dugme}" Click="NaZaustavi" Padding="14,6" IsEnabled="{Binding MozeZaustavljanje}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <RadioButton Content="Ceo dan" Style="{StaticResource TabPrikaza}" Margin="0,0,16,0"
+                             IsChecked="{Binding Prikaz, Converter={StaticResource Jednako}, ConverterParameter=Sve}" />
+                <RadioButton Content="Samo pesme" Style="{StaticResource TabPrikaza}" Margin="0,0,16,0"
+                             IsChecked="{Binding Prikaz, Converter={StaticResource Jednako}, ConverterParameter=Pesme}" />
+                <RadioButton Content="Zadata vremena" Style="{StaticResource TabPrikaza}" Margin="0"
+                             IsChecked="{Binding Prikaz, Converter={StaticResource Jednako}, ConverterParameter=Zadato}" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Sastavi dan: the light, then three steps from top to bottom, and the rarely touched part folded away -->
+        <ScrollViewer x:Name="Priprema" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="{Binding NaPripremi, Converter={StaticResource BoolUVidljivost}}"
+                      AllowDrop="True" DragOver="NaPrevlacenjeFoldera" Drop="NaSpustanjeFoldera">
+            <StackPanel Margin="0,0,10,12">
+
+                <!-- day -->
+                <DockPanel Margin="0,0,0,12">
+                    <Button x:Name="DugmeIznova" DockPanel.Dock="Right" Content="Složi iznova" Style="{StaticResource Dugme}" Click="NaIznova" Padding="12,5" FontSize="12"
+                            IsEnabled="{Binding MozeIzmena}" VerticalAlignment="Center"
+                            ToolTip="Briše ručne izmene i slaže dan iz foldera iznova. Fajlovi na disku se ne diraju." />
+                    <Button x:Name="DugmeIsprazni" DockPanel.Dock="Right" Style="{StaticResource Dugme}" Click="NaIsprazni"
+                            Padding="12,5" FontSize="12" Margin="0,0,8,0" IsEnabled="{Binding MozeIzmena}" VerticalAlignment="Center"
+                            ToolTip="Briše sve iz dana (emisije, plejliste i hit) i ostavlja prazan spisak da ga sastaviš iznova. Muzika na disku se ne dira.">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74D;" FontFamily="{StaticResource Ikone}" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Isprazni dan" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource Dugme}" Content="&#xE76B;" FontFamily="{StaticResource Ikone}" FontSize="11" Padding="9,6"
+                                Command="{Binding PrethodniDanCommand}" IsEnabled="{Binding MozeNazad}" ToolTip="Prethodni dan" />
+                        <TextBlock Text="{Binding IzabranDan.Naziv}" Foreground="{StaticResource Tekst}" FontSize="17" FontWeight="SemiBold"
+                                   VerticalAlignment="Center" Margin="12,0" MinWidth="190" TextAlignment="Center" />
+                        <Button Style="{StaticResource Dugme}" Content="&#xE76C;" FontFamily="{StaticResource Ikone}" FontSize="11" Padding="9,6"
+                                Command="{Binding SledeciDanCommand}" IsEnabled="{Binding MozeNapred}" ToolTip="Sledeći dan" />
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- the light -->
+                <Border x:Name="Semafor" CornerRadius="10" Padding="14,10" Margin="0,0,0,12" BorderThickness="1">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#1C2A22" />
+                            <Setter Property="BorderBrush" Value="#3FAF6D" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Semafor}" Value="paznja">
+                                    <Setter Property="Background" Value="#2E2A1E" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource Upozorenje}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Semafor}" Value="prazno">
+                                    <Setter Property="Background" Value="{StaticResource Povrsina}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource Linija}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="12" Height="12" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#3FAF6D" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Semafor}" Value="paznja">
+                                                <Setter Property="Fill" Value="{StaticResource Upozorenje}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Semafor}" Value="prazno">
+                                                <Setter Property="Fill" Value="{StaticResource Mutan}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding NaslovSemafora}" Foreground="{StaticResource Tekst}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding Problemi}" Margin="22,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Foreground="{StaticResource Tekst}" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- 1: hit of the day -->
+                <Border Style="{StaticResource KarticaDana}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border Style="{StaticResource BrojKoraka}"><TextBlock Text="1" Style="{StaticResource BrojKorakaTekst}" /></Border>
+                            <TextBlock Text="Hit dana" Style="{StaticResource NaslovKoraka}" />
+                        </StackPanel>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Izaberi fajl..." Style="{StaticResource Dugme}" Click="NaIzaberiHit" Margin="8,0,0,0" Padding="10,5" />
+                            <TextBlock DockPanel.Dock="Left" Text="&#xE8D6;" FontFamily="{StaticResource Ikone}" FontSize="18" Foreground="{StaticResource Akcenat}"
+                                       VerticalAlignment="Center" Margin="2,0,12,0" />
+                            <ComboBox Style="{StaticResource PadajuciSpisak}" ItemsSource="{Binding Hitovi}" DisplayMemberPath="Naziv" SelectedItem="{Binding IzabranHit}" />
+                        </DockPanel>
+                        <TextBlock Text="Program ga je našao sam: jedini fajl u folderu šeme." Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="32,6,0,0"
+                                   Visibility="{Binding HitNadjenSam, Converter={StaticResource BoolUVidljivost}}" />
+                        <TextBlock Text="Stavi hit dana u folder šeme (kad je tamo jedan fajl, program ga uzme sam) ili ga izaberi ovde." Foreground="{StaticResource Mutan}"
+                                   FontSize="12.5" Margin="32,6,0,0" TextWrapping="Wrap"
+                                   Visibility="{Binding IzabranHit, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 2: what goes on today -->
+                <Border Style="{StaticResource KarticaDana}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,8">
+                            <Button x:Name="DugmeEmisija" DockPanel.Dock="Right" Content="+ Dodaj" Style="{StaticResource Dugme}" Click="NaDodajEmisiju" Padding="11,5" FontSize="12"
+                                    IsEnabled="{Binding MozeIzmena}" />
+                            <TextBlock DockPanel.Dock="Right" Text="ili prevuci folder ovde iz Explorer-a" Foreground="{StaticResource Mutan}" FontSize="12.5"
+                                       VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource BrojKoraka}"><TextBlock Text="2" Style="{StaticResource BrojKorakaTekst}" /></Border>
+                                <TextBlock Text="Šta ide danas" Style="{StaticResource NaslovKoraka}" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <TextBlock Text="Ovde idu plejliste i emisije za taj dan. Vreme u imenu foldera, na primer „20.00 Koncertacija“, program upiše sam."
+                                   Foreground="{StaticResource Mutan}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,6"
+                                   Visibility="{Binding Emisije.Count, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+                        <ItemsControl ItemsSource="{Binding Emisije}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource AlatDana}" Content="&#xE711;" Click="NaUkloniEmisiju" ToolTip="Ukloni iz dana" Margin="6,0,0,0" />
+                                        <ComboBox DockPanel.Dock="Right" Style="{StaticResource PadajuciSpisak}" Width="230" Margin="8,0,0,0" DisplayMemberPath="Naziv"
+                                                  ItemsSource="{Binding DataContext.JingloviEmisija, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                  SelectedItem="{Binding Jingl}" ToolTip="Jingl koji ide pre ovoga" />
+                                        <Grid DockPanel.Dock="Left" Width="62">
+                                            <TextBox Style="{StaticResource PoljeZaUnos}" Text="{Binding Vreme, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{StaticResource Pozadina}" BorderBrush="{StaticResource PovrsinaHover}" BorderThickness="1"
+                                                     TextAlignment="Center" FontSize="13" Padding="4,5" ToolTip="Vreme početka, na primer 20:00" />
+                                            <TextBlock Text="--:--" Foreground="{StaticResource Bled}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       IsHitTestVisible="False" Visibility="{Binding Vreme, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+                                        </Grid>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Opis}" Foreground="{StaticResource Mutan}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                        <TextBlock DockPanel.Dock="Right" Text="vreme iz imena" Foreground="{StaticResource Mutan}" FontSize="11.5" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                   Visibility="{Binding VremeIzImena, Converter={StaticResource BoolUVidljivost}}" />
+                                        <TextBlock Text="{Binding Naziv}" Foreground="{StaticResource Tekst}" FontSize="14" VerticalAlignment="Center" Margin="12,0,0,0"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Bez vremena, redom popunjavaju dan. Upiši vreme pored foldera i on postaje blok koji počinje tada:" Foreground="{StaticResource Mutan}"
+                                   FontSize="12.5" Margin="0,10,0,6" TextWrapping="Wrap" Visibility="{Binding Plejliste.Count, Converter={StaticResource Ima}}" />
+                        <ItemsControl ItemsSource="{Binding Plejliste}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,0,0,4">
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource AlatDana}" Content="&#xE70D;" Click="NaPlejlistaDole" ToolTip="Pomeri dole" />
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource AlatDana}" Content="&#xE70E;" Click="NaPlejlistaGore" ToolTip="Pomeri gore" />
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Opis}" Foreground="{StaticResource Mutan}" FontSize="12.5" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                        <Grid DockPanel.Dock="Left" Width="62">
+                                            <TextBox Style="{StaticResource PoljeZaUnos}" Text="{Binding Vreme, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{StaticResource Pozadina}" BorderBrush="{StaticResource PovrsinaHover}" BorderThickness="1"
+                                                     TextAlignment="Center" FontSize="13" Padding="4,5" ToolTip="Upiši vreme početka (na primer 15:00), pa ovaj folder postaje blok sa svojim vremenom" />
+                                            <TextBlock Text="--:--" Foreground="{StaticResource Bled}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       IsHitTestVisible="False" Visibility="{Binding Vreme, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+                                        </Grid>
+                                        <CheckBox IsChecked="{Binding Ukljucena}" Content="{Binding Naziv}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Ostali fajlovi u folderu šeme. Ako je neki emisija u jednom fajlu, upiši joj vreme početka:" Foreground="{StaticResource Mutan}"
+                                   FontSize="12.5" Margin="0,10,0,6" TextWrapping="Wrap" Visibility="{Binding OstaliFajlovi.Count, Converter={StaticResource Ima}}" />
+                        <ItemsControl x:Name="ListaOstalihFajlova" ItemsSource="{Binding OstaliFajlovi}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,0,0,4">
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Opis}" Foreground="{StaticResource Mutan}" FontSize="12.5" VerticalAlignment="Center" Margin="0,0,54,0" />
+                                        <Grid DockPanel.Dock="Left" Width="62">
+                                            <TextBox Style="{StaticResource PoljeZaUnos}" Text="{Binding Vreme, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{StaticResource Pozadina}" BorderBrush="{StaticResource PovrsinaHover}" BorderThickness="1"
+                                                     TextAlignment="Center" FontSize="13" Padding="4,5" ToolTip="Upiši vreme početka emisije, na primer 19:05" />
+                                            <TextBlock Text="--:--" Foreground="{StaticResource Bled}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       IsHitTestVisible="False" Visibility="{Binding Vreme, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+                                        </Grid>
+                                        <TextBlock Text="&#xE8D6;" FontFamily="{StaticResource Ikone}" FontSize="13" Foreground="{StaticResource Mutan}" VerticalAlignment="Center" Margin="12,0,8,0" />
+                                        <TextBlock Text="{Binding Naziv}" Foreground="{StaticResource Tekst}" FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <DockPanel Margin="0,16,0,6">
+                            <TextBlock DockPanel.Dock="Right" Text="Slažem..." Foreground="{StaticResource Akcenat}" FontSize="12.5"
+                                       Visibility="{Binding Radi, Converter={StaticResource BoolUVidljivost}}" />
+                            <TextBlock Text="DAN PO SATIMA" Style="{StaticResource NaslovSekcije}" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <TextBlock Text="Dan se slaže sam čim ima šta da svira." Foreground="{StaticResource Mutan}" FontSize="13"
+                                   Visibility="{Binding Blokovi.Count, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+                        <ItemsControl x:Name="ListaBlokova" ItemsSource="{Binding Blokovi}" ItemTemplate="{StaticResource RedBloka}" />
+                        <TextBlock Text="Klik na red pokazuje šta je u njemu. Pesma po pesma, sa prevlačenjem i ubacivanjem, je u delu U etru."
+                                   Foreground="{StaticResource Mutan}" FontSize="12" Margin="8,8,0,0" TextWrapping="Wrap"
+                                   Visibility="{Binding Blokovi.Count, Converter={StaticResource Ima}}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 3: start -->
+                <Border Style="{StaticResource KarticaDana}">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Zaustavi" Style="{StaticResource Dugme}" Click="NaZaustavi" Padding="14,8" Margin="0,0,8,0"
+                                    Visibility="{Binding MozeZaustavljanje, Converter={StaticResource BoolUVidljivost}}" />
+                            <Button x:Name="DugmePokreniDan" Content="Pokreni dan" Style="{StaticResource DugmeGlavno}" Command="{Binding PokreniCommand}"
+                                    Padding="26,10" FontSize="15" IsEnabled="{Binding MozePokretanje}" />
+                        </StackPanel>
+                        <Border DockPanel.Dock="Left" Style="{StaticResource BrojKoraka}" VerticalAlignment="Top" Margin="0,2,10,0"><TextBlock Text="3" Style="{StaticResource BrojKorakaTekst}" /></Border>
+                        <StackPanel>
+                            <TextBlock Text="Pokreni dan" Style="{StaticResource NaslovKoraka}" Margin="0" />
+                            <TextBlock Text="Program sam počinje u 08:59:45 i ide do ponoći. Može se pokrenuti i ranije, pa čeka svoje vreme."
+                                       Foreground="{StaticResource Mutan}" FontSize="13" TextWrapping="Wrap" Margin="0,3,0,0" />
+                            <TextBlock Text="{Binding OpisDana}" Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="0,2,0,0"
+                                       Visibility="{Binding OpisDana, Converter={StaticResource Ima}}" />
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- advanced, folded -->
+                <Button x:Name="DugmeNapredno" Style="{StaticResource StavkaMenija}" Click="NaNapredno" FontSize="13" Margin="0,0,0,4">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="StrelicaNapredno" FontFamily="{StaticResource Ikone}" FontSize="10" VerticalAlignment="Center" Margin="0,0,10,0"
+                                   Foreground="{StaticResource Mutan}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="&#xE76C;" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NaprednoOtvoreno}" Value="True">
+                                            <Setter Property="Text" Value="&#xE70D;" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="Napredno: folderi, odstupanje, špica i jinglovi za hit, oznake jinglova" Foreground="{StaticResource Mutan}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Border Style="{StaticResource KarticaDana}" Visibility="{Binding NaprednoOtvoreno, Converter={StaticResource BoolUVidljivost}}">
+                    <StackPanel>
+                        <TextBlock Text="POČETAK DANA" Style="{StaticResource NaslovSekcije}" Margin="0,0,0,8" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Špica" Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="0,0,0,4" />
+                                <ComboBox Style="{StaticResource PadajuciSpisak}" ItemsSource="{Binding SviJinglovi}" DisplayMemberPath="Naziv" SelectedItem="{Binding Spica}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Jingl za hit dana" Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="0,0,0,4" />
+                                <ComboBox Style="{StaticResource PadajuciSpisak}" ItemsSource="{Binding SviJinglovi}" DisplayMemberPath="Naziv" SelectedItem="{Binding PocetniJinglHita}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Jingl posle hita" Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="0,0,0,4" />
+                                <ComboBox Style="{StaticResource PadajuciSpisak}" ItemsSource="{Binding SviJinglovi}" DisplayMemberPath="Naziv" SelectedItem="{Binding PocetniJingl}" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Bira se jednom i program ih pamti." Foreground="{StaticResource Mutan}" FontSize="12" Margin="0,6,0,0" />
+
+                        <TextBlock Text="ODSTUPANJE" Style="{StaticResource NaslovSekcije}" Margin="0,18,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Hit dana sme da krene ±" Foreground="{StaticResource Tekst}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBox Style="{StaticResource PoljeZaUnos}" Text="{Binding TolerancijaTekst}" Width="44" TextAlignment="Center" FontSize="13" Padding="4,5" />
+                            <TextBlock Text="sekundi od punog sata." Foreground="{StaticResource Tekst}" VerticalAlignment="Center" Margin="6,0,0,0" />
+                        </StackPanel>
+
+                        <TextBlock Text="FOLDERI" Style="{StaticResource NaslovSekcije}" Margin="0,18,0,8" />
+                        <DockPanel Margin="0,0,0,6">
+                            <Button DockPanel.Dock="Right" Content="Promeni" Style="{StaticResource Dugme}" Click="NaFolderSema" Padding="10,4" FontSize="12" />
+                            <TextBlock Text="{Binding FolderSema, StringFormat='Šema dana: {0}'}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                        <DockPanel Margin="0,0,0,6">
+                            <Button DockPanel.Dock="Right" Content="Promeni" Style="{StaticResource Dugme}" Click="NaFolderJinglovi" Padding="10,4" FontSize="12" />
+                            <TextBlock Text="{Binding FolderJinglovi, StringFormat='Jinglovi: {0}'}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Otvori" Style="{StaticResource Dugme}" Click="NaOznakeJinglova" Padding="10,4" FontSize="12" />
+                            <TextBlock Text="{Binding OpisJinglova, StringFormat='Oznake jinglova: {0}'}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Dan -->
+        <Grid Grid.Row="1" Visibility="{Binding NaDanu, Converter={StaticResource BoolUVidljivost}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <DockPanel Margin="0,0,8,8">
+                <Button x:Name="DugmeObrisiSve" DockPanel.Dock="Right" Content="Obriši sve" Style="{StaticResource Dugme}" Click="NaObrisiSve"
+                        Padding="12,5" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"
+                        ToolTip="Briše sve iz liste (kao u klasičnim plejerima). Dok dan traje, pesma koja svira i odsvirano ostaju." />
+                <StackPanel>
+                    <TextBlock Text="{Binding Stanje}" Foreground="{StaticResource Tekst}" FontSize="14" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding OpisDana}" Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="0,2,0,0"
+                               Visibility="{Binding OpisDana, Converter={StaticResource Ima}}" />
+                </StackPanel>
+            </DockPanel>
+            <Border Grid.Row="1" Background="#2E2A22" BorderBrush="{StaticResource Upozorenje}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,8,10"
+                    Visibility="{Binding Problemi.Count, Converter={StaticResource Ima}}">
+                <ItemsControl ItemsSource="{Binding Problemi}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Foreground="{StaticResource Tekst}" FontSize="13" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+            <ListView x:Name="ListaDana" Grid.Row="2" Style="{StaticResource ListaKolona}" ItemsSource="{Binding Stavke}" ItemContainerStyle="{StaticResource RedDana}" SelectionMode="Extended"
+                      AllowDrop="True" PreviewMouseLeftButtonDown="NaPocetakPrevlacenja" PreviewMouseMove="NaPrevlacenje" Drop="NaSpustanje"
+                      PreviewMouseRightButtonUp="NaDesniKlik" PreviewKeyDown="NaTasterDana">
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False" ColumnHeaderContainerStyle="{StaticResource ZaglavljeKolone}">
+                        <GridViewColumn Header="Početak" Width="72" DisplayMemberBinding="{Binding Pocetak}" />
+                        <GridViewColumn Header="Vrsta" Width="96" DisplayMemberBinding="{Binding VrstaNaziv}" />
+                        <GridViewColumn x:Name="KolonaIzvodjac" Header="Izvođač" Width="200" DisplayMemberBinding="{Binding Izvodjac}" />
+                        <GridViewColumn x:Name="KolonaNaslov" Header="Naslov" Width="220" DisplayMemberBinding="{Binding Naslov}" />
+                        <GridViewColumn Header="Trajanje" Width="66" DisplayMemberBinding="{Binding Trajanje}" />
+                        <GridViewColumn Header="Zadato" Width="72" DisplayMemberBinding="{Binding Zadato}" />
+                        <GridViewColumn Header="Odstupanje" Width="82" CellTemplate="{StaticResource CelijaOdstupanje}" />
+                        <GridViewColumn Width="84" CellTemplate="{StaticResource CelijaAlati}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <TextBlock Grid.Row="2" Text="Dan još nije složen. Otvori Sastavi dan." Foreground="{StaticResource Mutan}" FontSize="16"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Visibility="{Binding Stavke.Count, Converter={StaticResource Ima}, ConverterParameter=obrnuto}" />
+        </Grid>
+
+        <!-- Jinglovi -->
+        <Grid Grid.Row="1" Visibility="{Binding NaJinglovima, Converter={StaticResource BoolUVidljivost}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,8,10">
+                <TextBlock Text="Program sam ubacuje samo nasumične. Jinglovi emisija se biraju uz emisiju, a ručni se ubacuju kad ti poželiš." Foreground="{StaticResource Tekst}" FontSize="13" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding OpisJinglova}" Foreground="{StaticResource Mutan}" FontSize="12.5" Margin="0,3,0,0" />
+            </StackPanel>
+            <ListBox Grid.Row="1" Style="{StaticResource Lista}" ItemsSource="{Binding Jinglovi}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Height="42">
+                            <ComboBox DockPanel.Dock="Right" Style="{StaticResource PadajuciSpisak}" Width="150" Margin="8,4,0,4"
+                                      ItemsSource="{x:Static p:DanPrikaz.Vrste}" SelectedValuePath="Vrsta" DisplayMemberPath="Naziv" SelectedValue="{Binding Vrsta}" />
+                            <TextBlock Text="{Binding Naziv}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Grid>
+</UserControl>

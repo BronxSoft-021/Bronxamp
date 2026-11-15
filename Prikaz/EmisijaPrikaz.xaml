@@ -1,0 +1,94 @@
+<UserControl x:Class="Bronxamp.Prikaz.EmisijaPrikaz"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="clr-namespace:Bronxamp.Prikaz">
+    <UserControl.Resources>
+        <p:ImaUVidljivost x:Key="Ima" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Margin="0,0,0,14">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                <RadioButton Content="Pesme" Style="{StaticResource TabPrikaza}" IsChecked="True" Margin="0,0,14,0" />
+                <RadioButton Content="Istorija" Style="{StaticResource TabPrikaza}" Margin="0,0,20,0"
+                             IsChecked="{Binding PrikaziIstoriju}" />
+            </StackPanel>
+            <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button Content="Ukloni izabrano" Style="{StaticResource Dugme}" Click="NaUkloni" Margin="0,0,8,4" />
+                <Button Content="Isprazni" Style="{StaticResource Dugme}" Click="NaIsprazni" Margin="0,0,8,4" />
+                <Button Content="Izmeni" Style="{StaticResource Dugme}" Click="NaIzmeni" Margin="0,0,8,4" />
+                <Button Content="Obriši emisiju" Style="{StaticResource Dugme}" Click="NaObrisi" Margin="0,0,8,4" />
+                <Button Content="Pusti emisiju" Style="{StaticResource DugmeGlavno}" Click="NaPusti" Margin="0,0,0,4" />
+            </WrapPanel>
+        </DockPanel>
+
+        <ListBox x:Name="Lista" Grid.Row="1" Style="{StaticResource Lista}" ItemsSource="{Binding Stavke}" SelectionMode="Extended"
+                 AllowDrop="True" MouseDoubleClick="NaDvoklik" PreviewMouseRightButtonUp="NaDesniKlik" KeyDown="NaTaster"
+                 PreviewMouseLeftButtonDown="NaPocetakPrevlacenja" PreviewMouseMove="NaPrevlacenje" Drop="NaSpustanje"
+                 Visibility="{Binding PrikaziIstoriju, Converter={StaticResource Ima}, ConverterParameter=obrnuto}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="26" Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36" />
+                            <ColumnDefinition Width="24" />
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="62" />
+                            <ColumnDefinition Width="36" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="Rb" Text="{Binding Rb}" Foreground="{StaticResource Bled}" FontSize="12" VerticalAlignment="Center" />
+                        <TextBlock x:Name="Znak" Text="&#xE768;" FontFamily="{StaticResource Ikone}" FontSize="11" Foreground="{StaticResource Akcenat}"
+                                   VerticalAlignment="Center" Visibility="Collapsed" />
+                        <TextBlock Grid.Column="1" Text="&#xE7BA;" FontFamily="{StaticResource Ikone}" FontSize="13" Foreground="{StaticResource Upozorenje}"
+                                   VerticalAlignment="Center" ToolTip="{Binding Upozorenje}"
+                                   Visibility="{Binding Upozorenje, Converter={StaticResource Ima}}" />
+                        <TextBlock x:Name="Naslov" Grid.Column="2" Text="{Binding Naslov}" FontSize="13" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="3" Text="{Binding Izvodjac}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="4" Text="{Binding Trajanje}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center"
+                                   HorizontalAlignment="Right" />
+                        <Button x:Name="DugmeUkloni" Grid.Column="5" Style="{StaticResource DugmeAlat}" Content="&#xE711;" HorizontalAlignment="Right" Height="24" Width="24"
+                                Visibility="Hidden" Click="NaUkloniRed" ToolTip="Ukloni iz emisije" />
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                            <Setter TargetName="DugmeUkloni" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Tekuca}" Value="True">
+                            <Setter TargetName="Znak" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Rb" Property="Visibility" Value="Hidden" />
+                            <Setter TargetName="Naslov" Property="Foreground" Value="{StaticResource Akcenat}" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock Grid.Row="1" Text="Desni klik na album ili pesmu i „Dodaj u emisiju“." Foreground="{StaticResource Mutan}" FontSize="16"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="Prazna" />
+
+        <ListBox Grid.Row="1" Style="{StaticResource Lista}" ItemsSource="{Binding Istorija}"
+                 Visibility="{Binding PrikaziIstoriju, Converter={StaticResource Ima}}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="32">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Vreme}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="{Binding Pesma}" FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="2" Text="{Binding Izvodjac}" Foreground="{StaticResource Mutan}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>
