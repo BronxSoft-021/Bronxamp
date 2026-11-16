@@ -62,6 +62,15 @@ public sealed class Baza : IDisposable
             // Makes the next scan read every file once more, and that is where the new values come from.
             Izvrsi("UPDATE pesme SET izmenjeno=0");
         }
+
+        // Nullable on purpose: NULL means "not measured yet", and the measurement fills it in later. No scan
+        // is forced here, since measuring is a separate, slower job that can be started on its own.
+        using var g = Komanda("SELECT COUNT(*) FROM pragma_table_info('pesme') WHERE name='jacina_db'");
+        if ((long)g.ExecuteScalar()! == 0)
+        {
+            Izvrsi("ALTER TABLE pesme ADD COLUMN jacina_db REAL");
+            Izvrsi("ALTER TABLE pesme ADD COLUMN vrh_db REAL");
+        }
     }
 
     private void Izvrsi(string sql)
@@ -141,7 +150,7 @@ public sealed class Baza : IDisposable
             var pesme = new List<Pesma>();
             using (var k = Komanda("""
                 SELECT id, putanja, velicina, izmenjeno, naslov, izvodjac, album_id, godina, zanr, broj, disk, trajanje, omiljeno,
-                       bitrate, frekvencija
+                       bitrate, frekvencija, jacina_db, vrh_db
                 FROM pesme WHERE nestala=0 AND iskljucena=0 ORDER BY album_id, disk, broj, putanja
                 """))
             using (var r = k.ExecuteReader())
@@ -155,6 +164,8 @@ public sealed class Baza : IDisposable
                         Naslov = r.GetString(4), Izvodjac = r.GetString(5), AlbumId = albumId, Godina = r.GetInt32(7),
                         Zanr = r.GetString(8), Broj = r.GetInt32(9), Disk = r.GetInt32(10), Trajanje = r.GetDouble(11),
                         Omiljeno = r.GetInt32(12) != 0, Bitrate = r.GetInt32(13), Frekvencija = r.GetInt32(14), Album = album,
+                        JacinaDb = r.IsDBNull(15) ? null : r.GetDouble(15),
+                        VrhDb = r.IsDBNull(16) ? null : r.GetDouble(16),
                     };
                     p.ZaPretragu = Pretraga.TekstZaPretragu(p, album);
                     album.Pesme.Add(p);
@@ -223,23 +234,27 @@ public sealed class Baza : IDisposable
                 long premestena = s.Nova ? NadjiNestalu(t, s) : 0;
                 if (premestena != 0)
                 {
-                    using var k = Komanda("UPDATE pesme SET putanja=$p, nestala=0, album_id=$a, izmenjeno=$m, bitrate=$br, frekvencija=$fr WHERE id=$id",
-                        ("$p", s.Putanja), ("$a", albumId), ("$m", s.Izmenjeno), ("$br", s.Bitrate), ("$fr", s.Frekvencija), ("$id", premestena));
+                    using var k = Komanda("UPDATE pesme SET putanja=$p, nestala=0, album_id=$a, izmenjeno=$m, bitrate=$br, frekvencija=$fr, " +
+                                          "jacina_db=COALESCE($j, jacina_db), vrh_db=COALESCE($vr, vrh_db) WHERE id=$id",
+                        ("$p", s.Putanja), ("$a", albumId), ("$m", s.Izmenjeno), ("$br", s.Bitrate), ("$fr", s.Frekvencija),
+                        ("$j", s.JacinaDb), ("$vr", s.VrhDb), ("$id", premestena));
                     k.Transaction = t;
                     k.ExecuteNonQuery();
                     continue;
                 }
 
                 using (var k = Komanda("""
-                    INSERT INTO pesme(putanja, velicina, izmenjeno, naslov, izvodjac, album_id, godina, zanr, broj, disk, trajanje, bitrate, frekvencija)
-                    VALUES($p, $v, $m, $n, $i, $a, $g, $z, $b, $d, $t, $br, $fr)
+                    INSERT INTO pesme(putanja, velicina, izmenjeno, naslov, izvodjac, album_id, godina, zanr, broj, disk, trajanje, bitrate, frekvencija,
+                                       jacina_db, vrh_db)
+                    VALUES($p, $v, $m, $n, $i, $a, $g, $z, $b, $d, $t, $br, $fr, $j, $vr)
                     ON CONFLICT(putanja) DO UPDATE SET velicina=excluded.velicina, izmenjeno=excluded.izmenjeno,
                         naslov=excluded.naslov, izvodjac=excluded.izvodjac, album_id=excluded.album_id, godina=excluded.godina,
                         zanr=excluded.zanr, broj=excluded.broj, disk=excluded.disk, trajanje=excluded.trajanje,
-                        bitrate=excluded.bitrate, frekvencija=excluded.frekvencija, nestala=0
+                        bitrate=excluded.bitrate, frekvencija=excluded.frekvencija, nestala=0,
+                        jacina_db=COALESCE(excluded.jacina_db, jacina_db), vrh_db=COALESCE(excluded.vrh_db, vrh_db)
                     """, ("$p", s.Putanja), ("$v", s.Velicina), ("$m", s.Izmenjeno), ("$n", s.Naslov), ("$i", s.Izvodjac),
                     ("$a", albumId), ("$g", s.Godina), ("$z", s.Zanr), ("$b", s.Broj), ("$d", s.Disk), ("$t", s.Trajanje),
-                    ("$br", s.Bitrate), ("$fr", s.Frekvencija)))
+                    ("$br", s.Bitrate), ("$fr", s.Frekvencija), ("$j", s.JacinaDb), ("$vr", s.VrhDb)))
                 {
                     k.Transaction = t;
                     k.ExecuteNonQuery();
@@ -255,6 +270,36 @@ public sealed class Baza : IDisposable
             ("$v", s.Velicina), ("$n", s.Naslov), ("$i", s.Izvodjac));
         k.Transaction = t;
         return k.ExecuteScalar() is long id ? id : 0;
+    }
+
+    /// <summary>Stores what the measurement found for one song; see <see cref="Zvuk.Glasnoca"/>.</summary>
+    public void UpisiGlasnocu(long pesmaId, double jacinaDb, double vrhDb)
+    {
+        lock (_brava)
+        {
+            using var k = Komanda("UPDATE pesme SET jacina_db=$j, vrh_db=$v WHERE id=$id",
+                ("$j", jacinaDb), ("$v", vrhDb), ("$id", pesmaId));
+            k.ExecuteNonQuery();
+        }
+    }
+
+    /// <summary>
+    /// Songs that still have no loudness — or every song, when the people asked for the whole library to be
+    /// measured again. The oldest rows go first, so even a long job covers what was added first.
+    /// </summary>
+    public List<(long Id, string Putanja)> PesmeZaMerenje(bool sve = false, int najvise = int.MaxValue)
+    {
+        lock (_brava)
+        {
+            var upit = sve
+                ? "SELECT id, putanja FROM pesme WHERE nestala=0 AND iskljucena=0 ORDER BY id LIMIT $n"
+                : "SELECT id, putanja FROM pesme WHERE nestala=0 AND iskljucena=0 AND (jacina_db IS NULL OR vrh_db IS NULL) ORDER BY id LIMIT $n";
+            using var k = Komanda(upit, ("$n", najvise));
+            using var r = k.ExecuteReader();
+            var spisak = new List<(long, string)>();
+            while (r.Read()) spisak.Add((r.GetInt64(0), r.GetString(1)));
+            return spisak;
+        }
     }
 
     public void OznaciNestale(IEnumerable<string> putanje)

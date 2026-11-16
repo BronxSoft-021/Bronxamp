@@ -20,6 +20,13 @@ public sealed class Pesma
     public int Bitrate { get; set; }
     public int Frekvencija { get; set; }
 
+    /// <summary>
+    /// Measured loudness in LUFS and the highest sample in dBFS, from the ReplayGain tag or from decoding the
+    /// file (see <see cref="Zvuk.Glasnoca"/>). Null until the song is measured.
+    /// </summary>
+    public double? JacinaDb { get; set; }
+    public double? VrhDb { get; set; }
+
     public int Pustano { get; set; }
     public DateTime? PoslednjePustanje { get; set; }
 

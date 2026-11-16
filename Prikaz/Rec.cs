@@ -363,6 +363,17 @@ public sealed class Rec : INotifyPropertyChanged
             = "Peaks above −1.5 dB are pressed down. It does not change the length of a song. Applied at the next start.",
         ["Vrhovi iznad −1,5 dB se prigušuju. Ne menja dužinu pesme. Primenjuje se odmah pošto sačuvaš."]
             = "Peaks above −1.5 dB are pressed down. It does not change the length of a song. Applied as soon as you save.",
+        ["Normalizuj glasnoću"] = "Normalize loudness",
+        ["Svaka pesma se pušta na istoj glasnoći. Dužina pesme se ne menja, pa raspored dana ostaje tačan."]
+            = "Every song plays at the same loudness. A song stays as long as it is, so the day keeps its clock.",
+        ["Cilj"] = "Target",
+        ["LUFS (za strim −14)"] = "LUFS (−14 for a stream)",
+        ["Prag"] = "Threshold",
+        ["Izmeri biblioteku"] = "Measure the library",
+        ["Merenje… {0:N0} / {1:N0}"] = "Measuring… {0:N0} / {1:N0}",
+        ["Izmereno: {0:N0}."] = "Measured: {0:N0}.",
+        ["Sve pesme imaju izmerenu glasnoću."] = "Every song already has its loudness measured.",
+        ["Merim glasnoću {0:N0} / {1:N0}"] = "Measuring loudness {0:N0} / {1:N0}",
         ["{0} stvari treba da se srede"] = "{0} things to sort out",
         ["Fali pesama za {0} do {1}."] = "Not enough songs for {0} until {1}.",
         ["Dan je složen. Pogledaj listu i pokreni ga."] = "The day is built. Check the list and start it.",

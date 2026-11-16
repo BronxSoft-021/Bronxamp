@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -27,7 +28,13 @@ public partial class PodesavanjaProzor : Window
         Prelaz.Value = p.Prelaz;
         PrelazUAlbumima.IsChecked = p.PrelazUAlbumima;
         LimiterPolje.IsChecked = p.Limiter;
+        NormalizujPolje.IsChecked = p.Normalizuj;
+        CiljLufs.Text = p.CiljLufs.ToString(CultureInfo.InvariantCulture);
+        PragDb.Text = p.PragDb.ToString("0.#", CultureInfo.InvariantCulture);
         Nedelja.Text = p.UpozorenjeNedelja.ToString();
+
+        _vm.Skener.NapredakMerenja += NaMerenje;
+        Closed += (_, _) => _vm.Skener.NapredakMerenja -= NaMerenje;
 
         var uredjaji = PlejerVm.StvarniUredjaji().Select(u => u.Naziv).ToList();
         Izlaz.ItemsSource = uredjaji.Prepend(Podrazumevani).ToList();
@@ -108,6 +115,48 @@ public partial class PodesavanjaProzor : Window
 
     private void NaSkeniraj(object sender, RoutedEventArgs e) => _ = _vm.Skener.SkenirajAsync();
 
+    /// <summary>
+    /// Measures the whole library again, with a counter. It takes a while on a big library, so the window
+    /// stays open and the button is off until the job is done.
+    /// </summary>
+    private async void NaIzmeri(object sender, RoutedEventArgs e)
+    {
+        DugmeIzmeri.IsEnabled = false;
+        try
+        {
+            await _vm.Skener.IzmeriAsync(sve: true);
+        }
+        catch (Exception ex)
+        {
+            Dnevnik.Greska("Merenje biblioteke", ex);
+        }
+        finally
+        {
+            DugmeIzmeri.IsEnabled = true;
+        }
+    }
+
+    /// <summary>The measurement runs in the background; the counter is put on screen from the UI thread.</summary>
+    private void NaMerenje(Podaci.NapredakMerenja m) => Dispatcher.BeginInvoke(() =>
+    {
+        MerenjeTraka.Visibility = m.Gotovo ? Visibility.Collapsed : Visibility.Visible;
+        MerenjeTraka.Maximum = Math.Max(1, m.Ukupno);
+        MerenjeTraka.Value = m.Obradjeno;
+        if (m.Gotovo)
+            MerenjeTekst.Text = m.Ukupno == 0
+                ? Rec.T("Sve pesme imaju izmerenu glasnoću.")
+                : Rec.T("Izmereno: {0:N0}.", m.Obradjeno);
+        else
+            MerenjeTekst.Text = Rec.T("Merenje… {0:N0} / {1:N0}", m.Obradjeno, m.Ukupno);
+    });
+
+    /// <summary>A number typed the way people type it: minus may be the long one, and the decimal comma is fine.</summary>
+    private static double Broj(string tekst, double staro)
+    {
+        tekst = tekst.Replace('−', '-').Replace(',', '.').Trim();
+        return double.TryParse(tekst, NumberStyles.Float, CultureInfo.InvariantCulture, out double v) ? v : staro;
+    }
+
     private void NaOtkazi(object sender, RoutedEventArgs e) => DialogResult = false;
 
     private void NaSacuvaj(object sender, RoutedEventArgs e)
@@ -116,6 +165,9 @@ public partial class PodesavanjaProzor : Window
         p.Prelaz = Math.Clamp(Prelaz.Value, 0, 12);
         p.Limiter = LimiterPolje.IsChecked == true;
         _vm.Plejer.PodesiLimiter(p.Limiter);
+        p.Normalizuj = NormalizujPolje.IsChecked == true;
+        p.CiljLufs = Math.Clamp(Broj(CiljLufs.Text, p.CiljLufs), -30, -5);
+        p.PragDb = Math.Clamp(Broj(PragDb.Text, p.PragDb), 0, 6);
         p.PrelazUAlbumima = PrelazUAlbumima.IsChecked == true;
         if (int.TryParse(Nedelja.Text, out int nedelja) && nedelja is >= 1 and <= 520) p.UpozorenjeNedelja = nedelja;
 

@@ -166,7 +166,7 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
         }
 
         OznaciTekucu(pesma);
-        if (await _zvuk.PustiAsync(new ZvukStavka(pesma.Putanja, pesma)))
+        if (await _zvuk.PustiAsync(Stavka(pesma)))
         {
             _gresakaZaredom = 0;
             PripremiSledecu();
@@ -180,10 +180,17 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
     {
         if (_zvuk.Stanje == ZvukStanje.Stoji) return;
         var sledeca = Red.Sledeca;
-        _zvuk.PostaviSledecu(sledeca == null ? null : new ZvukStavka(sledeca.Putanja, sledeca),
+        _zvuk.PostaviSledecu(sledeca == null ? null : Stavka(sledeca),
             Red.Ponavljanje == Ponavljanje.Jedna ? 0 : TrenutniPrelaz);
         OsveziSledi();
     }
+
+    /// <summary>
+    /// A song as the player wants it: with the gain that brings it to the target loudness. The gain changes
+    /// only the volume, never the length, so the plan of the day stays on its clock.
+    /// </summary>
+    private ZvukStavka Stavka(Pesma pesma) =>
+        new(pesma.Putanja, pesma, Glasnoca.PojacanjeDb(pesma.JacinaDb, pesma.VrhDb, _podesavanja));
 
     private void OznaciTekucu(Pesma pesma)
     {

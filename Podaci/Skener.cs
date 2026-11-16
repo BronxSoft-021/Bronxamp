@@ -4,6 +4,9 @@ namespace Bronxamp.Podaci;
 
 public sealed record NapredakSkeniranja(int Obradjeno, int Ukupno, bool Gotovo);
 
+/// <summary>How far the loudness measurement has come: <see cref="Ukupno"/> is 0 when nothing needed measuring.</summary>
+public sealed record NapredakMerenja(int Obradjeno, int Ukupno, bool Gotovo = false);
+
 /// <summary>
 /// Scans the library folders in the background and keeps watching them. Only new or changed files are read.
 /// A root folder that is not reachable (unplugged disk) is skipped: its songs must not be marked as gone.
@@ -14,19 +17,27 @@ public sealed class Skener : IDisposable
     private static readonly TimeSpan OdlaganjePosleIzmene = TimeSpan.FromSeconds(4);
     private static readonly TimeSpan NajcesceOsvezavanje = TimeSpan.FromSeconds(3);
 
+    /// <summary>How many files one automatic measurement pass takes on, so a first scan of a big library does
+    /// not keep the disk busy for hours. The button in Settings measures everything.</summary>
+    private const int NajviseAutomatski = 400;
+
     private readonly Baza _baza;
     private readonly Katalog _katalog;
+    private readonly Func<bool>? _meri;
     private readonly List<FileSystemWatcher> _posmatraci = [];
     private readonly SemaphoreSlim _jedanPoJedan = new(1, 1);
     private readonly System.Threading.Timer _odlaganje;
     private readonly CancellationTokenSource _gasenje = new();
 
     public event Action<NapredakSkeniranja>? Napredak;
+    public event Action<NapredakMerenja>? NapredakMerenja;
 
-    public Skener(Baza baza, Katalog katalog)
+    /// <param name="meri">Asked after every scan: should new songs be measured for loudness now?</param>
+    public Skener(Baza baza, Katalog katalog, Func<bool>? meri = null)
     {
         _baza = baza;
         _katalog = katalog;
+        _meri = meri;
         _odlaganje = new System.Threading.Timer(_ => _ = SkenirajAsync(), null, Timeout.Infinite, Timeout.Infinite);
     }
 
@@ -100,6 +111,68 @@ public sealed class Skener : IDisposable
         {
             _jedanPoJedan.Release();
         }
+
+        if (_meri?.Invoke() == true) _ = IzmeriAsync();
+    }
+
+    /// <summary>
+    /// Measures loudness for the songs that have none, or for the whole library when the people asked for it
+    /// from Settings. Two at a time keeps the disk and the player happy; the catalogue is reloaded at the end,
+    /// so playback sees the new values.
+    /// </summary>
+    public async Task<int> IzmeriAsync(bool sve = false, int najvise = int.MaxValue, CancellationToken spolja = default)
+    {
+        using var spoj = CancellationTokenSource.CreateLinkedTokenSource(_gasenje.Token, spolja);
+        var token = spoj.Token;
+
+        List<(long Id, string Putanja)> pesme;
+        try
+        {
+            pesme = _baza.PesmeZaMerenje(sve, sve ? int.MaxValue : Math.Min(najvise, NajviseAutomatski));
+        }
+        catch (Exception ex)
+        {
+            Dnevnik.Greska("Spisak za merenje", ex);
+            return 0;
+        }
+
+        NapredakMerenja?.Invoke(new NapredakMerenja(0, pesme.Count));
+        if (pesme.Count == 0)
+        {
+            NapredakMerenja?.Invoke(new NapredakMerenja(0, 0, true));
+            return 0;
+        }
+
+        int obradjeno = 0, izmereno = 0;
+        try
+        {
+            await Parallel.ForEachAsync(pesme, new ParallelOptions { MaxDegreeOfParallelism = 2, CancellationToken = token },
+                (pesma, ct) =>
+                {
+                    var sada = Zvuk.Glasnoca.Izmeri(pesma.Putanja, ct);
+                    if (sada is { } m)
+                    {
+                        _baza.UpisiGlasnocu(pesma.Id, m.JacinaDb, m.VrhDb);
+                        Interlocked.Increment(ref izmereno);
+                    }
+
+                    int koliko = Interlocked.Increment(ref obradjeno);
+                    if (koliko % 10 == 0 || koliko == pesme.Count)
+                        NapredakMerenja?.Invoke(new NapredakMerenja(koliko, pesme.Count));
+                    return ValueTask.CompletedTask;
+                });
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Dnevnik.Greska("Merenje glasnoće", ex);
+        }
+
+        _katalog.Ucitaj();
+        NapredakMerenja?.Invoke(new NapredakMerenja(obradjeno, pesme.Count, true));
+        return izmereno;
     }
 
     public async Task SkenirajAsync()
@@ -114,9 +187,10 @@ public sealed class Skener : IDisposable
             return;
         }
 
+        bool biloNovih = false;
         try
         {
-            await Task.Run(() => Skeniraj(token), token);
+            biloNovih = await Task.Run(() => Skeniraj(token), token);
         }
         catch (OperationCanceledException)
         {
@@ -129,9 +203,12 @@ public sealed class Skener : IDisposable
         {
             _jedanPoJedan.Release();
         }
+
+        // The scan is reported as finished first: measuring decodes every new file and must not hold it up.
+        if (biloNovih && _meri?.Invoke() == true) _ = IzmeriAsync();
     }
 
-    private void Skeniraj(CancellationToken token)
+    private bool Skeniraj(CancellationToken token)
     {
         var poznati = _baza.PoznatiFajlovi();
         var zaCitanje = new List<(FileInfo Fajl, bool Nova)>();
@@ -175,7 +252,7 @@ public sealed class Skener : IDisposable
         {
             if (izmenjeno) _katalog.Ucitaj();
             Napredak?.Invoke(new NapredakSkeniranja(0, 0, true));
-            return;
+            return false;
         }
 
         // Sorted by path, so albums arrive whole and tiles look complete during a long first scan.
@@ -218,6 +295,7 @@ public sealed class Skener : IDisposable
 
         _katalog.Ucitaj();
         Napredak?.Invoke(new NapredakSkeniranja(obradjeno, zaCitanje.Count, true));
+        return true;
     }
 
     public void Dispose()

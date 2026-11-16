@@ -95,7 +95,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         Podesavanja = Podesavanja.Ucitaj();
         Baza = new Baza(Putanje.Baza);
         Katalog = new Katalog(Baza);
-        Skener = new Skener(Baza, Katalog);
+        Skener = new Skener(Baza, Katalog, () => Podesavanja.Normalizuj);
         Omoti = new Omoti(Putanje.Omoti);
         Plejer = new PlejerVm(Baza, Omoti, Podesavanja, ui, bezZvuka);
 
@@ -157,6 +157,8 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         Katalog.Promenjen += () => _ui.BeginInvoke(NaPromenuKataloga);
         Skener.Napredak += n => _ui.BeginInvoke(() =>
             StatusSkeniranja = n.Gotovo ? null : Bronxamp.Prikaz.Rec.T("Skeniram {0:N0} / {1:N0}", n.Obradjeno, n.Ukupno));
+        Skener.NapredakMerenja += m => _ui.BeginInvoke(() =>
+            StatusSkeniranja = m.Gotovo ? null : Bronxamp.Prikaz.Rec.T("Merim glasnoću {0:N0} / {1:N0}", m.Obradjeno, m.Ukupno));
 
         // The menu holds plain strings, so they are set again when the language changes.
         Bronxamp.Prikaz.Rec.Promenjen += () => _ui.BeginInvoke(OsveziJezik);

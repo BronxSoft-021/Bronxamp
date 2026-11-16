@@ -51,6 +51,11 @@ public static class Spisak
         ("biblioteka: stara kodiranja i imena bez tagova", BibliotekaTestovi.ImenaITagovi),
         ("biblioteka: praćenje izmena foldera", BibliotekaTestovi.PracenjeFoldera),
         ("baza: emisije, istorija i upozorenje", BibliotekaTestovi.Emisije),
+        ("glasnoća: merenje tihog i glasnog fajla", GlasnocaTestovi.Merenje),
+        ("glasnoća: pojačanje do cilja, prag i vrh", GlasnocaTestovi.Pojacanje),
+        ("glasnoća: pojačanje menja jačinu, ne dužinu pesme", GlasnocaTestovi.Pustanje),
+        ("glasnoća: merenje se pamti uz pesmu, skeniranje ga ne briše", GlasnocaTestovi.Biblioteka),
+        ("glasnoća: nadogradnja stare baze", GlasnocaTestovi.NadogradnjaGlasnoce),
     ];
 
     public static void Tvrdi(bool uslov, string poruka)

@@ -30,7 +30,7 @@ public static class ZvukTestovi
     /// <summary>A minute of tone, for the live checks of the stream (it must keep playing while the server comes and goes).</summary>
     internal static string Wav(string folder) => NapisiWav(folder, "ton.wav", 440, 0, Frekvencija * 60);
 
-    private static float[] Procitaj(int mikser, int sempala)
+    internal static float[] Procitaj(int mikser, int sempala)
     {
         var sve = new List<float>(sempala * 2);
         var bafer = new float[8192];

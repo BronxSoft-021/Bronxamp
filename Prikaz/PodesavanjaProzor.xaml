@@ -64,6 +64,24 @@
         <TextBlock Text="Vrhovi iznad −1,5 dB se prigušuju. Ne menja dužinu pesme. Primenjuje se odmah pošto sačuvaš."
                    Foreground="{StaticResource Mutan}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
 
+        <CheckBox x:Name="NormalizujPolje" Content="Normalizuj glasnoću" Margin="0,12,0,0" />
+        <TextBlock Text="Svaka pesma se pušta na istoj glasnoći. Dužina pesme se ne menja, pa raspored dana ostaje tačan."
+                   Foreground="{StaticResource Mutan}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <TextBlock Text="Cilj" Foreground="{StaticResource Tekst}" FontSize="13" VerticalAlignment="Center" />
+            <TextBox x:Name="CiljLufs" Style="{StaticResource PoljeZaUnos}" Width="52" Margin="8,0" TextAlignment="Center" FontSize="13" Padding="4,5" />
+            <TextBlock Text="LUFS (za strim −14)" Foreground="{StaticResource Tekst}" FontSize="13" VerticalAlignment="Center" />
+            <TextBlock Text="Prag" Foreground="{StaticResource Tekst}" FontSize="13" VerticalAlignment="Center" Margin="18,0,0,0" />
+            <TextBox x:Name="PragDb" Style="{StaticResource PoljeZaUnos}" Width="46" Margin="8,0" TextAlignment="Center" FontSize="13" Padding="4,5" />
+            <TextBlock Text="dB" Foreground="{StaticResource Tekst}" FontSize="13" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Button x:Name="DugmeIzmeri" Content="Izmeri biblioteku" Style="{StaticResource Dugme}" Click="NaIzmeri" />
+            <TextBlock x:Name="MerenjeTekst" Foreground="{StaticResource Mutan}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0" />
+        </StackPanel>
+        <ProgressBar x:Name="MerenjeTraka" Height="4" Margin="0,8,0,0" Minimum="0" Maximum="1" Value="0" Visibility="Collapsed"
+                     Background="{StaticResource Povrsina}" Foreground="{StaticResource Akcenat}" BorderThickness="0" />
+
         <TextBlock Text="EMITOVANJE NA ZENO.FM" Style="{StaticResource NaslovSekcije}" Margin="0,22,0,8" />
         <Grid>
             <Grid.ColumnDefinitions>

@@ -33,6 +33,12 @@ public static class Verzije
     [
         new("beta", "16. 11. 2026.",
         [
+            "Normalizacija glasnoće: svaka pesma se pušta na ciljnoj glasnoći (−14 LUFS). Glasnoća se prvo čita iz ReplayGain taga, a gde ga nema fajl se izmeri; jačina se menja sa 50 ms uvodom, dužina pesme ostaje ista. U Podešavanjima je kućica, cilj i prag, i dugme „Izmeri biblioteku“ sa progresom.",
+        ],
+        [
+        ]),
+        new("beta", "16. 11. 2026.",
+        [
             "Limiter na izlazu miksera: vrhovi iznad −1,5 dB se prigušuju, pa glasna pesma i jingl ne mogu da klipuju strim. Ne menja dužinu pesme.",
         ],
         [

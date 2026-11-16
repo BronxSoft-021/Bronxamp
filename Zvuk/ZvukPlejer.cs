@@ -5,7 +5,7 @@ using ManagedBass.Mix;
 
 namespace Bronxamp.Zvuk;
 
-public sealed record ZvukStavka(string Putanja, object? Oznaka = null);
+public sealed record ZvukStavka(string Putanja, object? Oznaka = null, double PojacanjeDb = 0);
 
 public enum ZvukStanje { Stoji, Svira, Pauza }
 
@@ -35,6 +35,9 @@ public sealed class ZvukPlejer : IDisposable
         public ZvukStavka Stavka { get; } = stavka;
         public double Trajanje { get; } = trajanje;
         public double Prelaz { get; set; }
+
+        /// <summary>Linear gain from the song's measured loudness; 1 when the song is left alone.</summary>
+        public float Pojacanje { get; } = (float)Math.Clamp(Math.Pow(10, stavka.PojacanjeDb / 20), 0.01, 10);
     }
 
     private readonly ConcurrentDictionary<int, Kanal> _kanali = new();
@@ -123,6 +126,7 @@ public sealed class ZvukPlejer : IDisposable
                 Dnevnik.Upisi($"Dodatak {dodatak}: {Bass.LastError}");
 
         _uredjaj = Bass.CurrentDevice;
+        Glasnoca.Uredjaj = _uredjaj;
         Bass.PlaybackBufferLength = BaferMs;
         Bass.GetInfo(out var info);
         Frekvencija = info.SampleRate > 0 ? info.SampleRate : 44100;
@@ -151,6 +155,7 @@ public sealed class ZvukPlejer : IDisposable
             return false;
         if (!Bass.ChannelSetDevice(_mikser, uredjaj)) return false;
         _uredjaj = uredjaj;
+        Glasnoca.Uredjaj = uredjaj;
         return true;
     }
 
@@ -228,6 +233,8 @@ public sealed class ZvukPlejer : IDisposable
                 return false;
             }
 
+            UvodnaRampa(novi);
+
             Volatile.Write(ref _mix, novi);
             Volatile.Write(ref _cuje, novi);
             _poslednjaPozicija = 0;
@@ -301,6 +308,8 @@ public sealed class ZvukPlejer : IDisposable
             Oslobodi(novi.Ruckica);
             return;
         }
+
+        UvodnaRampa(novi);
 
         var tekuci = Volatile.Read(ref _mix);
         if (prelaz > 0 && tekuci != null)
@@ -428,8 +437,29 @@ public sealed class ZvukPlejer : IDisposable
         }
         double trajanje = Bass.ChannelBytes2Seconds(ruckica, Bass.ChannelGetLength(ruckica));
         var kanal = new Kanal(ruckica, stavka, trajanje);
+
+        // The gain sits on the channel itself, so it is in force however the song starts; the envelopes the
+        // crossfade and the fade-in use are multiplied by it (BASS: "product of the channel attribute and the envelope").
+        if (kanal.Pojacanje != 1f)
+            Bass.ChannelSetAttribute(ruckica, ChannelAttribute.Volume, kanal.Pojacanje);
+
         _kanali[ruckica] = kanal;
         return kanal;
+    }
+
+    /// <summary>
+    /// A 50 ms rise from silence to the song's own gain, so a quiet file played louder does not click. It runs
+    /// on the song's own clock, so for a queued song it starts when the song does, not when it was opened.
+    /// </summary>
+    private void UvodnaRampa(Kanal k)
+    {
+        if (Math.Abs(k.Pojacanje - 1f) < 0.001f) return;
+        var tacke = new MixerNode[]
+        {
+            new() { Position = 0, Value = 0f },
+            new() { Position = Bass.ChannelSeconds2Bytes(_mikser, 0.05), Value = 1f },
+        };
+        BassMix.ChannelSetEnvelope(k.Ruckica, MixEnvelope.Volume, tacke, tacke.Length);
     }
 
     private void Oslobodi(int ruckica)

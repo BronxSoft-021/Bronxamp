@@ -20,6 +20,11 @@ public sealed class SkeniranaPesma
     public double Trajanje { get; init; }
     public int Bitrate { get; init; }
     public int Frekvencija { get; init; }
+
+    /// <summary>From a ReplayGain tag, if the file has one; null means it has to be measured by decoding.</summary>
+    public double? JacinaDb { get; init; }
+    public double? VrhDb { get; init; }
+
     public bool Nova { get; init; }
 }
 
@@ -41,6 +46,7 @@ public static partial class Tagovi
         string naslov = "", izvodjac = "", album = "", albumIzvodjac = "", zanr = "";
         int godina = 0, broj = 0, disk = 0, bitrate = 0, frekvencija = 0;
         double trajanje = 0;
+        double? jacina = null, vrh = null;
 
         try
         {
@@ -57,6 +63,13 @@ public static partial class Tagovi
             trajanje = f.Properties?.Duration.TotalSeconds ?? 0;
             bitrate = f.Properties?.AudioBitrate ?? 0;
             frekvencija = f.Properties?.AudioSampleRate ?? 0;
+
+            // ReplayGain is the loudness the file already carries: no decoding needed later.
+            if (Zvuk.Glasnoca.IzReplayGain(t.ReplayGainTrackGain, t.ReplayGainTrackPeak) is { } rg)
+            {
+                jacina = rg.JacinaDb;
+                vrh = rg.VrhDb;
+            }
         }
         catch (Exception ex) when (ex is TagLib.CorruptFileException or TagLib.UnsupportedFormatException
                                        or IOException or UnauthorizedAccessException or ArgumentException
@@ -99,6 +112,8 @@ public static partial class Tagovi
             Trajanje = trajanje,
             Bitrate = bitrate,
             Frekvencija = frekvencija,
+            JacinaDb = jacina,
+            VrhDb = vrh,
             Nova = nova,
         };
     }
