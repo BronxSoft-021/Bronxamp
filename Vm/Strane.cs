@@ -425,7 +425,7 @@ public sealed partial class EmitovanoStrana : Strana
     {
         try
         {
-            Linije = value != null ? File.ReadAllLines(value.Fajl) : [];
+            Linije = value != null ? File.ReadAllLines(value.Fajl).Select(Rec.Zapis).ToList() : [];
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

@@ -408,7 +408,7 @@ public sealed partial class DanStrana : Strana
                 for (int i = 0; i < 14; i++)
                 {
                     var d = danas.AddDays(i);
-                    Datumi.Add(new IzborDana(d, $"{Dani[(int)d.DayOfWeek]} {d:dd.MM.yyyy.}"));
+                    Datumi.Add(new IzborDana(d, Rec.T("{0} {1:dd.MM.yyyy.}", Rec.Dan((int)d.DayOfWeek), d)));
                 }
                 IzabranDan = Datumi[0];
             }
@@ -533,7 +533,7 @@ public sealed partial class DanStrana : Strana
         {
             var (broj, ukupno) = trajanja[i];
             string opis = broj == 1 && !Directory.Exists(redovi[i].Folder) ? Vreme.Dugo(ukupno)
-                : broj == 0 ? "prazan" : $"{Rec.Pesama(broj)} · {Vreme.Dugo(ukupno)}";
+                : broj == 0 ? Rec.T("prazan") : $"{Rec.Pesama(broj)} · {Vreme.Dugo(ukupno)}";
             switch (redovi[i].Red)
             {
                 case PlejlistaRed p: p.Opis = opis; break;
@@ -581,7 +581,7 @@ public sealed partial class DanStrana : Strana
 
         if (novih > 0) _podesavanja.Sacuvaj();
         var poVrsti = Jinglovi.GroupBy(j => j.Vrsta).ToDictionary(g => g.Key, g => g.Count());
-        OpisJinglova = string.Join(" · ", VrsteJinglova.Where(poVrsti.ContainsKey).Select(v => $"{NazivVrste(v)}: {poVrsti[v]}"));
+        OpisJinglova = string.Join(" · ", VrsteJinglova.Where(poVrsti.ContainsKey).Select(v => Rec.T("{0}: {1}", Rec.T(NazivVrste(v)), poVrsti[v])));
         if (novih > 0 && novih < Jinglovi.Count) Poruka?.Invoke(Rec.T("Novih jinglova: {0}. Proveri njihove oznake u delu Jinglovi.", novih));
     }
 
@@ -606,7 +606,7 @@ public sealed partial class DanStrana : Strana
         _podesavanja.OznakeJinglova[Path.GetFileName(red.Putanja)] = red.Vrsta;
         _podesavanja.Sacuvaj();
         var poVrsti = Jinglovi.GroupBy(j => j.Vrsta).ToDictionary(g => g.Key, g => g.Count());
-        OpisJinglova = string.Join(" · ", VrsteJinglova.Where(poVrsti.ContainsKey).Select(v => $"{NazivVrste(v)}: {poVrsti[v]}"));
+        OpisJinglova = string.Join(" · ", VrsteJinglova.Where(poVrsti.ContainsKey).Select(v => Rec.T("{0}: {1}", Rec.T(NazivVrste(v)), poVrsti[v])));
     }
 
     partial void OnIzabranDanChanged(IzborDana? value)
@@ -1279,7 +1279,7 @@ public sealed partial class DanStrana : Strana
         var za = sledeca.Zadato.Value - sada;
         string doKad = za.TotalHours >= 1 ? $"{(int)za.TotalHours}:{za.Minutes:00}:{za.Seconds:00}" : $"{Math.Max(0, za.Minutes):00}:{Math.Max(0, za.Seconds):00}";
         KarticaZadato = sledeca.NazivZadatog ?? Opis(sledeca);
-        KarticaZadatoVreme = $"{KarticaZadato} za {doKad}";
+        KarticaZadatoVreme = Rec.T("{0} za {1}", KarticaZadato, doKad);
     }
 
     private void Otkucaj()

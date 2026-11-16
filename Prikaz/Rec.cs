@@ -47,6 +47,26 @@ public sealed class Rec : INotifyPropertyChanged
         ? n == 1 ? "1 song" : $"{n} songs"
         : n == 1 ? "1 pesma" : n < 5 ? $"{n} pesme" : $"{n} pesama";
 
+    /// <summary>Day of the week, 0 = Sunday, as it is written in the date of a day.</summary>
+    public static string Dan(int danUNedelji)
+    {
+        string[] sr = ["nedelja", "ponedeljak", "utorak", "sreda", "četvrtak", "petak", "subota"];
+        string[] en = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        return (EngleskiJezik ? en : sr)[Math.Clamp(danUNedelji, 0, 6)];
+    }
+
+    /// <summary>A line of the broadcast log: the type at the start is translated, the rest is data.</summary>
+    public static string Zapis(string linija) => !EngleskiJezik
+        ? linija
+        : linija
+            .Replace("KRAJ ", "END ")
+            .Replace("Pesma ", "Song ")
+            .Replace("Jingl ", "Jingle ")
+            .Replace("Spica ", "Opening ")
+            .Replace("Za danas više nema šta da svira.", "nothing left to play that day")
+            .Replace("Dan je zaustavljen.", "the day was stopped")
+            .Replace("Program je ponovo pokrenut", "the programme was started again");
+
     /// <summary>"1 jingl / 2 jingla / 5 jinglova" — or the same in English.</summary>
     public static string Jinglova(int n) => EngleskiJezik
         ? n == 1 ? "1 jingle" : $"{n} jingles"
@@ -318,6 +338,7 @@ public sealed class Rec : INotifyPropertyChanged
         ["Dodaj u emisiju"] = "Add to the show",
         ["Nova emisija..."] = "New show…",
 
+        ["{0} za {1}"] = "{0} at {1}",
         ["Odstupanje"] = "Deviation",
         ["+ Dodaj"] = "+ Add",
         ["Najslušanije"] = "Most played",
