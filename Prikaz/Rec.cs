@@ -286,6 +286,14 @@ public sealed class Rec : INotifyPropertyChanged
         ["Dan svira"] = "The day is on air",
         ["Čeka"] = "Waiting",
         ["Dan nije pokrenut"] = "The day is not running",
+        ["Dan nije složen."] = "The day is not built.",
+        ["Dan još nije složen."] = "The day is not built yet.",
+        ["Folder sa šemom ili jinglovima nije dostupan."] = "The schedule or jingles folder is not available.",
+        ["Slažem dan..."] = "Building the day…",
+        ["Dan nije složen: neki fajl nije dostupan."] = "The day is not built: a file is not available.",
+        ["Taj dan je prošao."] = "That day has passed.",
+        ["{0} · {1} · kraj u {2}{3}"] = "{0} · {1} · ends at {2}{3}",
+        [" · ostalo neiskorišćeno: {0}"] = " · unused: {0}",
 
         // About and help
         ["Verzija {0}"] = "Version {0}",

@@ -231,7 +231,7 @@ public sealed partial class DanStrana : Strana
     [ObservableProperty] private bool _radi;
     [ObservableProperty] private bool _aktivan;
     [ObservableProperty] private bool _ceka;
-    [ObservableProperty] private string _stanje = "Dan nije složen.";
+    [ObservableProperty] private string _stanje = Rec.T("Dan nije složen.");
     [ObservableProperty] private string _opisDana = "";
     [ObservableProperty] private string _opisJinglova = "";
     [ObservableProperty] private string _opisStanja = "";
@@ -243,7 +243,7 @@ public sealed partial class DanStrana : Strana
 
     /// <summary>"ok", "paznja" or "prazno": the colour of the light on top of the page.</summary>
     [ObservableProperty] private string _semafor = "prazno";
-    [ObservableProperty] private string _naslovSemafora = "Dan još nije složen.";
+    [ObservableProperty] private string _naslovSemafora = Rec.T("Dan još nije složen.");
 
     /// <summary>The hit was found by the program, not picked by the people.</summary>
     [ObservableProperty] private bool _hitNadjenSam;
@@ -392,7 +392,7 @@ public sealed partial class DanStrana : Strana
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             Dnevnik.Greska("Čitanje foldera dana", ex);
-            Stanje = "Folder sa šemom ili jinglovima nije dostupan.";
+            Stanje = Rec.T("Folder sa šemom ili jinglovima nije dostupan.");
         }
     }
 
@@ -790,7 +790,7 @@ public sealed partial class DanStrana : Strana
     {
         if (IzabranDan is not { } dan || !MozeIzmena) return;
         Radi = true;
-        Stanje = "Slažem dan...";
+        Stanje = Rec.T("Slažem dan...");
         try
         {
             if (double.TryParse(TolerancijaTekst, out double tolerancija) && tolerancija is >= 0 and <= 60)
@@ -852,7 +852,7 @@ public sealed partial class DanStrana : Strana
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             Dnevnik.Greska("Slaganje dana", ex);
-            Stanje = "Dan nije složen: neki fajl nije dostupan.";
+            Stanje = Rec.T("Dan nije složen: neki fajl nije dostupan.");
         }
         finally
         {
@@ -874,7 +874,7 @@ public sealed partial class DanStrana : Strana
             KarticaZadato = null;
             OnPropertyChanged(nameof(PrikaziOstatak));
             OpisDana = "";
-            Stanje = "Dan nije složen.";
+            Stanje = Rec.T("Dan nije složen.");
             Blokovi.Clear();
             OsveziSemafor();
             return;
@@ -897,8 +897,8 @@ public sealed partial class DanStrana : Strana
         var s = _dan.Stavke;
         double pesama = s.Count(x => x.Vrsta == VrstaStavke.Pesma);
         string kraj = s.Count > 0 ? s[^1].Pocetak.AddSeconds(s[^1].Fajl.Trajanje).ToString("HH:mm:ss") : "";
-        var ostalo = _dan.Neiskorisceno > 0 ? $" · ostalo neiskorišćeno: {Rec.Pesama(_dan.Neiskorisceno)}" : "";
-        OpisDana = $"{Rec.Pesama((int)pesama)} · {Rec.Jinglova(s.Count(x => x.Vrsta == VrstaStavke.Jingl))} · kraj u {kraj}{ostalo}";
+        var ostalo = _dan.Neiskorisceno > 0 ? Rec.T(" · ostalo neiskorišćeno: {0}", Rec.Pesama(_dan.Neiskorisceno)) : "";
+        OpisDana = Rec.T("{0} · {1} · kraj u {2}{3}", Rec.Pesama((int)pesama), Rec.Jinglova(s.Count(x => x.Vrsta == VrstaStavke.Jingl)), kraj, ostalo);
     }
 
     /// <summary>What already played stays as it was, and so does the opening of the day.</summary>
@@ -1054,7 +1054,7 @@ public sealed partial class DanStrana : Strana
         if (_dan == null)
         {
             Semafor = "prazno";
-            NaslovSemafora = Radi ? "Slažem dan..." : "Dan još nije složen.";
+            NaslovSemafora = Radi ? Rec.T("Slažem dan...") : Rec.T("Dan još nije složen.");
             return;
         }
         int n = Problemi.Count;
@@ -1100,7 +1100,7 @@ public sealed partial class DanStrana : Strana
         var sada = Sada();
         if (sada >= _dan.Kraj)
         {
-            Stanje = "Taj dan je prošao.";
+            Stanje = Rec.T("Taj dan je prošao.");
             return;
         }
 
