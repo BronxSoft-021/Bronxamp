@@ -26,6 +26,7 @@ public partial class PodesavanjaProzor : Window
         OsveziFoldere();
         Prelaz.Value = p.Prelaz;
         PrelazUAlbumima.IsChecked = p.PrelazUAlbumima;
+        LimiterPolje.IsChecked = p.Limiter;
         Nedelja.Text = p.UpozorenjeNedelja.ToString();
 
         var uredjaji = PlejerVm.StvarniUredjaji().Select(u => u.Naziv).ToList();
@@ -113,6 +114,7 @@ public partial class PodesavanjaProzor : Window
     {
         var p = _vm.Podesavanja;
         p.Prelaz = Math.Clamp(Prelaz.Value, 0, 12);
+        p.Limiter = LimiterPolje.IsChecked == true;
         p.PrelazUAlbumima = PrelazUAlbumima.IsChecked == true;
         if (int.TryParse(Nedelja.Text, out int nedelja) && nedelja is >= 1 and <= 520) p.UpozorenjeNedelja = nedelja;
 
