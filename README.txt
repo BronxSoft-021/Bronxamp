@@ -13,7 +13,7 @@ Tasteri: razmak = pusti/pauza, Ctrl+F = pretraga, Esc u pretrazi = briše upit, 
 - Testovi/                 provere (dotnet run --project Testovi)
 - lib/x64/                 BASS DLL-ovi i BASSenc (besplatni za nekomercijalnu upotrebu) + lame.exe za MP3 na etru (LGPL)
 - assets/                  ikonica (app.ico) i logoi (logo_bronxamp, logo_bronxsoft, uvod)
-- Napravi publish.bat, Napravi precicu.bat
+- Napravi publish.bat, Napravi precicu.bat, Napravi release.bat (zip + GitHub release)
 - dizajn/                  izgled glavnog prozora i mini trake + koncepti skinova
 - skins/magnetofon/        spisak delova za prvi skin i opisi za generator slika
 - fonts/                   LCD fontovi DSEG (besplatni, licenca OFL)
