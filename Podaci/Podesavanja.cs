@@ -29,6 +29,15 @@ public sealed class Podesavanja
     /// <summary>Limiter on the mixer: keeps peaks below full scale so the stream cannot clip.</summary>
     public bool Limiter { get; set; }
 
+    /// <summary>Play every song at the same loudness (measured at scan time, see <see cref="Podaci.Baza"/>).</summary>
+    public bool Normalizuj { get; set; }
+
+    /// <summary>Target loudness in LUFS. −14 is the usual choice for a stream.</summary>
+    public double CiljLufs { get; set; } = -14;
+
+    /// <summary>If a song is already within this many dB of the target, it is left alone.</summary>
+    public double PragDb { get; set; } = 1;
+
     public string FolderSema { get; set; } = IzvorDana.PodrazumevanaSema;
     public string FolderJinglovi { get; set; } = IzvorDana.PodrazumevaniJinglovi;
     public double Tolerancija { get; set; } = 5;
