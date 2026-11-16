@@ -16,7 +16,7 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
 {
     public const string ImePrograma = "BronxSoft Bronxamp";
 
-    private const string PocetniPodnaslov = "Izaberi album ili emisiju";
+    private static readonly string PocetniPodnaslov = Rec.T("Izaberi album ili emisiju");
     private const int NajviseUSledi = 300;
     private const int NajviseGresakaZaredom = 10;
     private const double SekundiZaPustanje = 30;
@@ -52,8 +52,8 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
     [ObservableProperty] private string _preostaloTekst = "00:00";
     [ObservableProperty] private string _satTekst = "00:00:00";
     [ObservableProperty] private string _datumTekst = "";
-    [ObservableProperty] private string _naEtruNaslov = "Ništa ne svira";
-    [ObservableProperty] private string _naEtruPesma = "Ništa ne svira";
+    [ObservableProperty] private string _naEtruNaslov = Rec.T("Ništa ne svira");
+    [ObservableProperty] private string _naEtruPesma = Rec.T("Ništa ne svira");
     [ObservableProperty] private string _naEtruIzvodjac = "";
     [ObservableProperty] private string _naEtruOpis = "U etru";
     [ObservableProperty] private string _statusStavke = "";
@@ -456,7 +456,7 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
         _zvuk.Zaustavi();
 
         Tekuca = null;
-        NaEtruNaslov = "Ništa ne svira";
+        NaEtruNaslov = Rec.T("Ništa ne svira");
         NaEtruPesma = Rec.T("Ništa ne svira");
         NaEtruIzvodjac = "";
         NaEtruOpis = "U etru";

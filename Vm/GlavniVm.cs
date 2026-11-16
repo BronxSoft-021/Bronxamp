@@ -216,7 +216,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
     {
         Aktiviraj(NavMuzika[1]);
         PrikaziTabove = false;
-        Strana = new FolderiStrana(Baza.Folderi().Prepend(Dan.FolderSema), this) { Naslov = "Folderi", NazivReda = "Folder", MozeUklanjanje = false };
+        Strana = new FolderiStrana(Baza.Folderi().Prepend(Dan.FolderSema), this) { Naslov = Rec.T("Folderi"), NazivReda = "Folder", MozeUklanjanje = false };
         _osveziStranu = null;
     }
 
@@ -224,7 +224,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
     {
         Aktiviraj(NavIzvestaj[0]);
         PrikaziTabove = false;
-        Strana = new EmitovanoStrana { Naslov = "Emitovano" };
+        Strana = new EmitovanoStrana { Naslov = Rec.T("Emitovano") };
         _osveziStranu = null;
     }
 

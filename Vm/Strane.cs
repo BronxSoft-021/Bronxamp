@@ -376,7 +376,7 @@ public sealed partial class FolderiStrana : PesmeStrana
     {
         _citanje?.Cancel();
         var token = (_citanje = new CancellationTokenSource()).Token;
-        Podnaslov = "Čitam folder...";
+        Podnaslov = Rec.T("Čitam folder...");
         var redovi = await Task.Run(() =>
         {
             try

@@ -123,7 +123,7 @@ public sealed partial class DanRed(StavkaDana stavka) : ObservableObject
     public string Trajanje => Vreme.Kratko(Stavka.Fajl.Trajanje);
     public string Zadato => Stavka.Zadato?.ToString("HH:mm:ss") ?? "";
     public VrstaStavke Vrsta => Stavka.Vrsta;
-    public string VrstaNaziv => DanStrana.NazivVrste(Stavka.Vrsta);
+    public string VrstaNaziv => Rec.T(DanStrana.NazivVrste(Stavka.Vrsta));
     public bool Istaknuta => Stavka.Vrsta is VrstaStavke.HitDana or VrstaStavke.Emisija or VrstaStavke.Spica;
     public bool JeJingl => Stavka.Vrsta is VrstaStavke.Jingl or VrstaStavke.JinglHit or VrstaStavke.JinglEmisije;
 
@@ -320,7 +320,7 @@ public sealed partial class DanStrana : Strana
     {
         _plejer = plejer;
         _podesavanja = podesavanja;
-        Naslov = "Sastavi dan";
+        Naslov = Rec.T("Sastavi dan");
         CollectionViewSource.GetDefaultView(Stavke).Filter = ProdjeFilter;
         _folderSema = podesavanja.FolderSema;
         _folderJinglovi = podesavanja.FolderJinglovi;
@@ -886,7 +886,7 @@ public sealed partial class DanStrana : Strana
         OsveziOstatak();
         OsveziBlokove();
         OnPropertyChanged(nameof(PrikaziOstatak));
-        Stanje = Problemi.Count == 0 ? "Dan je složen. Pogledaj listu i pokreni ga." : "Dan je složen, ali proveri upozorenja.";
+        Stanje = Problemi.Count == 0 ? Rec.T("Dan je složen. Pogledaj listu i pokreni ga.") : Rec.T("Dan je složen, ali proveri upozorenja.");
     }
 
     private void OsveziRedove()
@@ -1064,7 +1064,7 @@ public sealed partial class DanStrana : Strana
         {
             0 => "Sve je spremno",
             1 => "Jedna stvar treba da se sredi",
-            < 5 => $"{n} stvari treba da se srede",
+            < 5 => Rec.T("{0} stvari treba da se srede", n),
             _ => $"{n} stvari treba da se sredi",
         };
     }
@@ -1078,12 +1078,12 @@ public sealed partial class DanStrana : Strana
         for (int i = 1; i < s.Count; i++)
         {
             double rupa = (s[i].Pocetak - s[i - 1].Pocetak).TotalSeconds - s[i - 1].Fajl.Trajanje;
-            if (rupa > _dan.Tolerancija) novi.Add($"Fali pesama za {Vreme.Dugo(rupa)} do {s[i].Pocetak:HH:mm}.");
+            if (rupa > _dan.Tolerancija) novi.Add(Rec.T("Fali pesama za {0} do {1}.", Vreme.Dugo(rupa), s[i].Pocetak.ToString("HH:mm")));
         }
         if (s.Count > 0)
         {
             double doKraja = (_dan.Kraj - s[^1].Pocetak).TotalSeconds - s[^1].Fajl.Trajanje;
-            if (doKraja > _dan.Tolerancija) novi.Add($"Fali pesama za {Vreme.Dugo(doKraja)} do {_dan.Kraj:HH:mm}.");
+            if (doKraja > _dan.Tolerancija) novi.Add(Rec.T("Fali pesama za {0} do {1}.", Vreme.Dugo(doKraja), _dan.Kraj.ToString("HH:mm")));
         }
         _dan.Problemi = novi;
         Problemi.Clear();
@@ -1122,7 +1122,7 @@ public sealed partial class DanStrana : Strana
         int od = mesto?.Indeks ?? _dan.Stavke.FindIndex(s => s.Pocetak > sada);
         if (od < 0)
         {
-            Zavrsi("Za danas više nema šta da svira.");
+            Zavrsi(Rec.T("Za danas više nema šta da svira."));
             return;
         }
         await PustiOd(od, mesto?.Pomak ?? 0);
