@@ -1,10 +1,11 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Bronxamp.Podaci;
+using Bronxamp.Prikaz;
 using Bronxamp.Sistem;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -208,7 +209,7 @@ public sealed partial class DanStrana : Strana
     }
 
     public Brush BojaStanja => Aktivan ? BojaTraje : Ceka ? BojaCeka : BojaMirna;
-    public string NatpisStanja => Aktivan ? "Dan svira" : Ceka ? "Čeka" : "Dan nije pokrenut";
+    public string NatpisStanja => Aktivan ? Rec.T("Dan svira") : Ceka ? Rec.T("Čeka") : Rec.T("Dan nije pokrenut");
     public bool DanTraje => Aktivan || Ceka;
 
     /// <summary>The right panel shows the day while it runs, and a built day while nothing else is queued.</summary>
@@ -532,7 +533,7 @@ public sealed partial class DanStrana : Strana
         {
             var (broj, ukupno) = trajanja[i];
             string opis = broj == 1 && !Directory.Exists(redovi[i].Folder) ? Vreme.Dugo(ukupno)
-                : broj == 0 ? "prazan" : $"{Vreme.BrojPesama(broj)} · {Vreme.Dugo(ukupno)}";
+                : broj == 0 ? "prazan" : $"{Rec.Pesama(broj)} · {Vreme.Dugo(ukupno)}";
             switch (redovi[i].Red)
             {
                 case PlejlistaRed p: p.Opis = opis; break;
@@ -581,7 +582,7 @@ public sealed partial class DanStrana : Strana
         if (novih > 0) _podesavanja.Sacuvaj();
         var poVrsti = Jinglovi.GroupBy(j => j.Vrsta).ToDictionary(g => g.Key, g => g.Count());
         OpisJinglova = string.Join(" · ", VrsteJinglova.Where(poVrsti.ContainsKey).Select(v => $"{NazivVrste(v)}: {poVrsti[v]}"));
-        if (novih > 0 && novih < Jinglovi.Count) Poruka?.Invoke($"Novih jinglova: {novih}. Proveri njihove oznake u delu Jinglovi.");
+        if (novih > 0 && novih < Jinglovi.Count) Poruka?.Invoke(Rec.T("Novih jinglova: {0}. Proveri njihove oznake u delu Jinglovi.", novih));
     }
 
     partial void OnSpicaChanged(IzborFajla? value) => ZapamtiPocetak();
@@ -896,8 +897,8 @@ public sealed partial class DanStrana : Strana
         var s = _dan.Stavke;
         double pesama = s.Count(x => x.Vrsta == VrstaStavke.Pesma);
         string kraj = s.Count > 0 ? s[^1].Pocetak.AddSeconds(s[^1].Fajl.Trajanje).ToString("HH:mm:ss") : "";
-        var ostalo = _dan.Neiskorisceno > 0 ? $" · ostalo neiskorišćeno: {Vreme.BrojPesama(_dan.Neiskorisceno)}" : "";
-        OpisDana = $"{Vreme.BrojPesama((int)pesama)} · {s.Count(x => x.Vrsta == VrstaStavke.Jingl)} jinglova · kraj u {kraj}{ostalo}";
+        var ostalo = _dan.Neiskorisceno > 0 ? $" · ostalo neiskorišćeno: {Rec.Pesama(_dan.Neiskorisceno)}" : "";
+        OpisDana = $"{Rec.Pesama((int)pesama)} · {Rec.Jinglova(s.Count(x => x.Vrsta == VrstaStavke.Jingl))} · kraj u {kraj}{ostalo}";
     }
 
     /// <summary>What already played stays as it was, and so does the opening of the day.</summary>
@@ -1021,7 +1022,7 @@ public sealed partial class DanStrana : Strana
             {
                 VrstaDela.Hit or VrstaDela.Pocetak when pesama == 0 => $"{Math.Max(1, (int)Math.Round(trajanje / 60))} min",
                 VrstaDela.Emisija => Vreme.Kratko(trajanje),
-                _ => (jinglova > 0 ? $"{Vreme.BrojPesama(pesama)} · {jinglova} {(jinglova == 1 ? "jingl" : jinglova < 5 ? "jingla" : "jinglova")}" : Vreme.BrojPesama(pesama))
+                _ => (jinglova > 0 ? $"{Rec.Pesama(pesama)} · {Rec.Jinglova(jinglova)}" : Rec.Pesama(pesama))
                      + $" · {Vreme.Dugo(trajanje)}",
             };
 

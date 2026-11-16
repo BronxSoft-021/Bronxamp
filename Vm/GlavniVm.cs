@@ -1,8 +1,9 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Threading;
 using Bronxamp.Podaci;
+using Bronxamp.Prikaz;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -155,7 +156,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
 
         Katalog.Promenjen += () => _ui.BeginInvoke(NaPromenuKataloga);
         Skener.Napredak += n => _ui.BeginInvoke(() =>
-            StatusSkeniranja = n.Gotovo ? null : $"Skeniram {n.Obradjeno:N0} / {n.Ukupno:N0}");
+            StatusSkeniranja = n.Gotovo ? null : Bronxamp.Prikaz.Rec.T("Skeniram {0:N0} / {1:N0}", n.Obradjeno, n.Ukupno));
 
         // The menu holds plain strings, so they are set again when the language changes.
         Bronxamp.Prikaz.Rec.Promenjen += () => _ui.BeginInvoke(OsveziJezik);
@@ -395,7 +396,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         if (token.IsCancellationRequested) return;
         Poredak.Numerisi(redovi, static (r, broj) => r.Rb = broj);
         strana.Stavke = redovi;
-        strana.Podnaslov = Podaci.Vreme.BrojPesama(redovi.Count);
+        strana.Podnaslov = Rec.Pesama(redovi.Count);
         strana.Prazno = redovi.Count == 0 ? "Ništa nije pronađeno." : null;
         strana.OznaciTekucu(Plejer.Tekuca);
     }
@@ -460,7 +461,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         {
             strana.Stavke = Katalog.Pesme.Where(p => p.Omiljeno).Select(p => new PesmaRed(p)).ToList();
             Poredak.Numerisi(strana.Stavke, static (r, broj) => r.Rb = broj);
-            strana.Podnaslov = Podaci.Vreme.BrojPesama(strana.Stavke.Count);
+            strana.Podnaslov = Rec.Pesama(strana.Stavke.Count);
             strana.Prazno = strana.Stavke.Count == 0 ? "Desni klik na pesmu i „Dodaj u omiljeno“." : null;
             strana.OznaciTekucu(Plejer.Tekuca);
         };
@@ -540,7 +541,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
     {
         var delovi = new List<string> { a.Izvodjac };
         if (a.Godina > 0) delovi.Add(a.Godina.ToString());
-        delovi.Add(Podaci.Vreme.BrojPesama(a.Pesme.Count));
+        delovi.Add(Rec.Pesama(a.Pesme.Count));
         delovi.Add(Podaci.Vreme.Dugo(a.Trajanje));
         return string.Join(" · ", delovi);
     }
@@ -628,11 +629,11 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         Plejer.Red.DodajNaKraj(pesme);
         Plejer.PripremiSledecu();
         Plejer.OsveziSledi();
-        PrikaziPoruku($"Dodato na kraj reda: {Opis(pesme)}.");
+        PrikaziPoruku(Rec.T("Dodato na kraj reda: {0}.", Opis(pesme)));
     }
 
     private static string Opis(IReadOnlyList<Pesma> pesme) =>
-        pesme.Count == 1 ? $"„{pesme[0].Naslov}“" : Podaci.Vreme.BrojPesama(pesme.Count);
+        pesme.Count == 1 ? $"„{pesme[0].Naslov}“" : Rec.Pesama(pesme.Count);
 
     public void DodajSledece(IReadOnlyList<Pesma> pesme)
     {
@@ -667,7 +668,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
             if (strana.Album != null && strana.Stavke.Count == 0) Nazad();
         }
         Katalog.Ucitaj();
-        PrikaziPoruku($"Iz spiska je uklonjeno: {Podaci.Vreme.BrojPesama(uklonjene.Count)}. Vraćaš ih u Podešavanjima.");
+        PrikaziPoruku($"Iz spiska je uklonjeno: {Rec.Pesama(uklonjene.Count)}. Vraćaš ih u Podešavanjima.");
     }
 
     public void VratiAlbume()
@@ -766,7 +767,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
                 strana.Stavke.Skip(1).Select(s => s.Pesma.Trajanje), Podesavanja.Prelaz);
         strana.Podnaslov = strana.Stavke.Count == 0
             ? "Prazna emisija"
-            : $"{Podaci.Vreme.BrojPesama(strana.Stavke.Count)} · {Podaci.Vreme.Dugo(ukupno)} · sa prelazima {Podaci.Vreme.Dugo(sPrelazima)}";
+            : $"{Rec.Pesama(strana.Stavke.Count)} · {Podaci.Vreme.Dugo(ukupno)} · sa prelazima {Podaci.Vreme.Dugo(sPrelazima)}";
     }
 
     public string? UpozorenjeZa(DateTime pustano)
@@ -802,9 +803,9 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         if (ponovljene.Count == 1)
             PrikaziPoruku($"Pazi: „{ponovljene[0].Naslov}“ je u emisiji {emisija.Ime} puštana {skoro[ponovljene[0].Id]:dd.MM.yyyy.}");
         else if (ponovljene.Count > 1)
-            PrikaziPoruku($"Pazi: {Podaci.Vreme.BrojPesama(ponovljene.Count)} je puštano u emisiji {emisija.Ime} u poslednjih {Podesavanja.UpozorenjeNedelja} nedelja.");
+            PrikaziPoruku($"Pazi: {Rec.Pesama(ponovljene.Count)} je puštano u emisiji {emisija.Ime} u poslednjih {Podesavanja.UpozorenjeNedelja} nedelja.");
         else
-            PrikaziPoruku($"Dodato u emisiju {emisija.Ime}: {Podaci.Vreme.BrojPesama(pesme.Count)}.");
+            PrikaziPoruku($"Dodato u emisiju {emisija.Ime}: {Rec.Pesama(pesme.Count)}.");
 
         NakonIzmeneEmisije(emisija);
     }
@@ -841,7 +842,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         var pesme = Plejer.Red.SvePesme.ToList();
         Baza.SacuvajPesmeEmisije(e.Id, pesme.Select(p => p.Id).ToList());
         OsveziNavEmisije();
-        PrikaziPoruku($"Napravljena emisija {ime}: {Podaci.Vreme.BrojPesama(pesme.Count)}.");
+        PrikaziPoruku($"Napravljena emisija {ime}: {Rec.Pesama(pesme.Count)}.");
     }
 
     public void IzmeniEmisiju(Emisija emisija, string ime, string boja)

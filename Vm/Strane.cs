@@ -1,8 +1,9 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using Bronxamp.Podaci;
+using Bronxamp.Prikaz;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bronxamp.Vm;
@@ -393,7 +394,7 @@ public sealed partial class FolderiStrana : PesmeStrana
         });
         if (token.IsCancellationRequested) return;
         Stavke = redovi;
-        Podnaslov = Vreme.BrojPesama(redovi.Count);
+        Podnaslov = Rec.Pesama(redovi.Count);
         Prazno = redovi.Count == 0 ? "U ovom folderu nema muzike." : null;
         OznaciTekucu(_vm.Plejer.Tekuca);
     }

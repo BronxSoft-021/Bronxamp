@@ -42,6 +42,16 @@ public sealed class Rec : INotifyPropertyChanged
 
     public static string T(string format, params object?[] args) => string.Format(T(format), args);
 
+    /// <summary>"1 pesma / 2 pesme / 5 pesama" — or the same in English.</summary>
+    public static string Pesama(int n) => EngleskiJezik
+        ? n == 1 ? "1 song" : $"{n} songs"
+        : n == 1 ? "1 pesma" : n < 5 ? $"{n} pesme" : $"{n} pesama";
+
+    /// <summary>"1 jingl / 2 jingla / 5 jinglova" — or the same in English.</summary>
+    public static string Jinglova(int n) => EngleskiJezik
+        ? n == 1 ? "1 jingle" : $"{n} jingles"
+        : n == 1 ? "1 jingl" : n < 5 ? $"{n} jingla" : $"{n} jinglova";
+
     private static string Prevedi(string kljuc) => Engleski.TryGetValue(kljuc, out var en) ? en : kljuc;
 
     private static string Nazad(string kljuc) => NazadRecnik.TryGetValue(kljuc, out var sr) ? sr : kljuc;
@@ -126,6 +136,156 @@ public sealed class Rec : INotifyPropertyChanged
         ["Uključi emitovanje"] = "Start broadcasting",
         ["Prekini emitovanje"] = "Stop broadcasting",
         ["Čeka muziku"] = "Waiting for music",
+
+        // Day screen
+        ["Pokreni dan"] = "Start the day",
+        ["Zaustavi"] = "Stop",
+        ["ODSTUPANJE"] = "DEVIATION",
+        ["Pusti sledeće (posle ove pesme)"] = "Play next (after this song)",
+        ["Dodaj u red (na kraj)"] = "Add to queue (at the end)",
+        ["Pomeri gore"] = "Move up",
+        ["Pomeri dole"] = "Move down",
+        ["Ukloni iz reda"] = "Remove from the queue",
+        ["Dupli klik pušta ovu pesmu"] = "Double-click plays this song",
+        ["Preostalo"] = "Remaining",
+        ["Proteklo"] = "Elapsed",
+        ["Koliko još traje"] = "Time left",
+        ["Desni klik: skoči na to mesto u pesmi"] = "Right click: jump to that point in the song",
+        ["Izaberi folder sa albumom. Muzika se može i prevući u prozor."] = "Pick an album folder. Music can also be dragged into the window.",
+        ["Izaberi jednu ili više pesama. Muzika se može i prevući u prozor."] = "Pick one or more songs. Music can also be dragged into the window.",
+        ["Ukloni iz spiska (fajl ostaje na disku)"] = "Remove from the list (the file stays on disk)",
+        ["Prikaži pesme"] = "Show songs",
+
+        ["Vreme početka, na primer 20:00"] = "Start time, e.g. 20:00",
+        ["Jingl koji ide pre ovoga"] = "Jingle that goes before this one",
+        ["Bez vremena, redom popunjavaju dan. Upiši vreme pored foldera i on postaje blok koji počinje tada:"]
+            = "Without a time they fill the day in order. Type a time next to a folder and it becomes a block starting then:",
+        ["vreme iz imena"] = "time from the name",
+        ["Šta ide danas"] = "What is on today",
+        ["ili prevuci folder ovde iz Explorer-a"] = "or drag a folder here from Explorer",
+        ["Ukloni iz dana"] = "Remove from the day",
+        ["Izbaci iz dana"] = "Remove from the day",
+        ["Ovde idu plejliste i emisije za taj dan. Vreme u imenu foldera, na primer „20.00 Koncertacija“, program upiše sam."]
+            = "Playlists and shows for that day go here. A time in the folder name, e.g. \"20.00 Koncertacija\", is filled in by the program.",
+        ["Upiši vreme početka (na primer 15:00), pa ovaj folder postaje blok sa svojim vremenom"]
+            = "Type a start time (e.g. 15:00) and this folder becomes a block with its own time",
+        ["Klik na red pokazuje šta je u njemu. Pesma po pesma, sa prevlačenjem i ubacivanjem, je u delu U etru."]
+            = "Clicking a row shows what is inside. Song by song, with dragging and inserting, is on the On air page.",
+        ["Dan se slaže sam čim ima šta da svira."] = "The day builds itself as soon as there is something to play.",
+        ["Napredno: folderi, odstupanje, špica i jinglovi za hit, oznake jinglova"]
+            = "Advanced: folders, deviation, opening and hit jingles, jingle labels",
+        ["Program sam počinje u 08:59:45 i ide do ponoći. Može se pokrenuti i ranije, pa čeka svoje vreme."]
+            = "The programme starts by itself at 08:59:45 and runs until midnight. It can be started earlier and waits for its time.",
+        ["Upiši vreme početka emisije, na primer 19:05"] = "Type the show start time, e.g. 19:05",
+        ["Ostali fajlovi u folderu šeme. Ako je neki emisija u jednom fajlu, upiši joj vreme početka:"]
+            = "Other files in the schedule folder. If one is a show in a single file, type its start time:",
+        ["DAN PO SATIMA"] = "DAY BY HOUR",
+        ["Slažem..."] = "Building…",
+        ["Samo pesme"] = "Songs only",
+        ["Ceo dan"] = "Whole day",
+        ["Zadata vremena"] = "Set times",
+        ["Složi iznova"] = "Rebuild",
+        ["emisija"] = "show",
+        ["Ne staje u blok, ostaje van dana:"] = "Does not fit the block, stays out of the day:",
+        ["Ove pesme ne staju u blok i neće se pustiti. Klik na red ih pokazuje."]
+            = "These songs do not fit the block and will not be played. Click a row to see them.",
+
+        ["Briše ručne izmene i slaže dan iz foldera iznova. Fajlovi na disku se ne diraju."]
+            = "Clears the manual changes and rebuilds the day from the folders. Files on disk are left alone.",
+        ["Izaberi fajl..."] = "Choose a file…",
+        ["Hit dana"] = "Hit of the day",
+        ["Stavi hit dana u folder šeme (kad je tamo jedan fajl, program ga uzme sam) ili ga izaberi ovde."]
+            = "Put the hit of the day in the schedule folder (a single file there is taken by itself) or pick it here.",
+        ["Program ga je našao sam: jedini fajl u folderu šeme."] = "The program found it: the only file in the schedule folder.",
+        ["Isprazni dan"] = "Empty the day",
+        ["Briše sve iz dana (emisije, plejliste i hit) i ostavlja prazan spisak da ga sastaviš iznova. Muzika na disku se ne dira."]
+            = "Deletes everything in the day (shows, playlists and the hit) and leaves an empty list to build again. Music on disk is left alone.",
+        ["Sledeći dan"] = "Next day",
+        ["Prethodni dan"] = "Previous day",
+        ["POČETAK DANA"] = "START OF THE DAY",
+        ["Pusti emisiju"] = "Play the show",
+        ["Obriši emisiju"] = "Delete the show",
+        ["Desni klik na album ili pesmu i „Dodaj u emisiju“."] = "Right-click an album or a song and choose \"Add to the show\".",
+        ["Ukloni iz emisije"] = "Remove from the show",
+        ["Istorija"] = "History",
+        ["Pesme"] = "Songs",
+        ["Izmeni"] = "Edit",
+        ["Ukloni izabrano"] = "Remove selected",
+        ["Još ništa nije emitovano."] = "Nothing has been broadcast yet.",
+        ["Ove nedelje"] = "This week",
+        ["Ovog meseca"] = "This month",
+        ["+ Nova emisija"] = "+ New show",
+        ["Program sam ubacuje samo nasumične. Jinglovi emisija se biraju uz emisiju, a ručni se ubacuju kad ti poželiš."]
+            = "The programme only inserts random jingles. Show jingles are chosen with the show, manual ones are inserted when you want.",
+
+        ["sekundi od punog sata."] = "seconds from the full hour.",
+        ["Hit dana sme da krene ±"] = "The hit of the day may start ±",
+        ["FOLDERI"] = "FOLDERS",
+        ["Jingl za hit dana"] = "Jingle for the hit of the day",
+        ["Špica"] = "Opening",
+        ["Bira se jednom i program ih pamti."] = "Chosen once, the program remembers them.",
+        ["Jingl posle hita"] = "Jingle after the hit",
+        ["Obriši sve"] = "Delete all",
+        ["Briše sve iz liste (kao u klasičnim plejerima). Dok dan traje, pesma koja svira i odsvirano ostaju."]
+            = "Deletes everything in the list (as in classic players). While the day runs, the song on air and what already played stay.",
+        ["Trajanje"] = "Duration",
+        ["Naslov"] = "Title",
+        ["Vrsta"] = "Type",
+        ["Početak"] = "Start",
+        ["Zadato"] = "Scheduled",
+        ["Izvođač"] = "Artist",
+        ["Dan još nije složen. Otvori Sastavi dan."] = "The day is not built yet. Open Build the day.",
+
+        // Settings
+        ["Adresa"] = "Address",
+        ["Korisnik"] = "User",
+        ["Lozinka"] = "Password",
+        ["Izlaz"] = "Output",
+        ["Kvalitet"] = "Quality",
+        ["Prikaži"] = "Show",
+        ["Test veze"] = "Test connection",
+        ["Skeniraj ponovo"] = "Rescan",
+        ["Dodaj folder"] = "Add folder",
+        ["nedelja"] = "weeks",
+        ["ZVUK"] = "SOUND",
+        ["PRELAZ IZMEĐU PESAMA"] = "CROSSFADE BETWEEN SONGS",
+        ["Upozori ako je pesma puštana u istoj emisiji u poslednjih"]
+            = "Warn if a song was played in the same show in the last",
+        ["Prelaz i kad svira album (inače album ide bez prekida i bez prelaza)"]
+            = "Crossfade even inside an album (otherwise an album plays gapless, without crossfade)",
+        ["Slušalice (preslušavanje)"] = "Headphones (cue)",
+        ["EMITOVANJE NA ZENO.FM"] = "BROADCASTING TO ZENO.FM",
+        ["Probno (lokalni Icecast 127.0.0.1:8000 — pravi Zeno se ne dira)"]
+            = "Test mode (local Icecast 127.0.0.1:8000 — the real Zeno is left alone)",
+        ["Lozinka je šifrovana za ovaj Windows nalog (DPAPI). Dok je uključeno „Probno“, emituje se na lokalni server, ne na pravi Zeno."]
+            = "The password is encrypted for this Windows account (DPAPI). While \"Test mode\" is on, it broadcasts to the local server, not the real Zeno.",
+        ["Nivo zvuka: zeleno do −3 dB, blagi prelaz u crveno od −3 do 0 dB"]
+            = "Sound level: green up to −3 dB, fading into red from −3 to 0 dB",
+        ["  Slušalice:"] = "  Headphones:",
+        ["A-Š"] = "A–Z",
+        ["JEZIK / LANGUAGE"] = "LANGUAGE / JEZIK",
+
+        // Messages and statuses built in code
+        ["Veza pukla — vraćam se…"] = "Connection dropped — reconnecting…",
+        ["Nije se povezao…"] = "Could not connect…",
+        ["Prekinuto u ponoć"] = "Stopped at midnight",
+        ["SLEDI · {0}"] = "UP NEXT · {0}",
+        ["SLEDI · {0} {1:dd.MM.}"] = "UP NEXT · {0} {1:dd.MM.}",
+        ["... još {0}"] = "… {0} more",
+        ["Stavki: {0} · {1}"] = "Items: {0} · {1}",
+        ["Još {0} · kraj u {1}"] = "{0} left · ends at {1}",
+        ["{0} · prelaz {1:0.#} s"] = "{0} · crossfade {1:0.#} s",
+        ["{0} · bez prelaza"] = "{0} · no crossfade",
+        ["Skeniram {0:N0} / {1:N0}"] = "Scanning {0:N0} / {1:N0}",
+        ["Sledi u {0}"] = "Next at {0}",
+        ["Dodato na kraj reda: {0}."] = "Added to the end of the queue: {0}.",
+        ["Novih jinglova: {0}. Proveri njihove oznake u delu Jinglovi."]
+            = "New jingles: {0}. Check their labels on the Jingles page.",
+
+        ["{0} · još {1}"] = "{0} · {1} left",
+        ["Dan svira"] = "The day is on air",
+        ["Čeka"] = "Waiting",
+        ["Dan nije pokrenut"] = "The day is not running",
 
         // Common
         ["Dodaj"] = "Add",

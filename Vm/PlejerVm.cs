@@ -1,7 +1,8 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Bronxamp.Podaci;
+using Bronxamp.Prikaz;
 using Bronxamp.Zvuk;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -456,7 +457,7 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
 
         Tekuca = null;
         NaEtruNaslov = "Ništa ne svira";
-        NaEtruPesma = "Ništa ne svira";
+        NaEtruPesma = Rec.T("Ništa ne svira");
         NaEtruIzvodjac = "";
         NaEtruOpis = "U etru";
         Naslov = ImePrograma;
@@ -511,14 +512,14 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
     {
         if (Red.Sledeca is not { } sledeca || _zvuk.Stanje == ZvukStanje.Stoji)
         {
-            KarticaSledi = ZamenaSledi?.Naslov ?? "Ništa";
-            KarticaSlediVreme = ZamenaSledi?.Vreme ?? "Sledi";
+            KarticaSledi = ZamenaSledi?.Naslov ?? Rec.T("Ništa");
+            KarticaSlediVreme = ZamenaSledi?.Vreme ?? Rec.T("Sledi");
             return;
         }
 
         double ostalo = Math.Max(0, _zvuk.Trajanje - _zvuk.Pozicija) - Math.Min(TrenutniPrelaz, _zvuk.Trajanje / 2);
         KarticaSledi = sledeca.Izvodjac.Length > 0 ? $"{sledeca.Izvodjac} - {sledeca.Naslov}" : sledeca.Naslov;
-        KarticaSlediVreme = $"Sledi u {DateTime.Now.AddSeconds(Math.Max(0, ostalo)):HH:mm:ss}";
+        KarticaSlediVreme = Rec.T("Sledi u {0}", DateTime.Now.AddSeconds(Math.Max(0, ostalo)).ToString("HH:mm:ss"));
     }
 
     private void ZabeleziAkoTreba(double pozicija, double trajanje)
@@ -550,10 +551,10 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
     {
         var naziv = Red.Naziv;
         SlediNaslov = string.IsNullOrEmpty(naziv)
-            ? "SLEDI"
+            ? Rec.T("SLEDI")
             : Red.Emisija != null
-                ? $"SLEDI · {naziv.ToUpperInvariant()} {DateTime.Now:dd.MM.}"
-                : $"SLEDI · {naziv.ToUpperInvariant()}";
+                ? Rec.T("SLEDI · {0} {1:dd.MM.}", naziv.ToUpperInvariant(), DateTime.Now)
+                : Rec.T("SLEDI · {0}", naziv.ToUpperInvariant());
 
         var preostale = Red.Preostale.ToList();
         var nove = new List<SlediStavka>();
@@ -571,14 +572,14 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
         ImaRed = Red.Ukupno > 0;
         int prikazano = nove.Count(s => !s.Tekuca);
         int skriveno = preostale.Count - prikazano;
-        JosOpis = skriveno > 0 ? $"... još {skriveno}" : "";
+        JosOpis = skriveno > 0 ? Rec.T("... još {0}", skriveno) : "";
         JosTrajanje = skriveno > 0 ? Vreme.Kratko(preostale.Skip(prikazano).Sum(p => p.Trajanje)) : "";
         OsveziKraj();
     }
 
     private void OsveziKraj()
     {
-        StatusStavke = Red.Ukupno > 0 ? $"Stavki: {Red.Ukupno} · {Podaci.Vreme.Dugo(Red.SvePesme.Sum(p => p.Trajanje))}" : "";
+        StatusStavke = Red.Ukupno > 0 ? Rec.T("Stavki: {0} · {1}", Red.Ukupno, Podaci.Vreme.Dugo(Red.SvePesme.Sum(p => p.Trajanje))) : "";
         if (Red.Tekuca == null || Ponavljanje != Ponavljanje.Ne || _zvuk.Stanje == ZvukStanje.Stoji)
         {
             KrajVidljiv = false;
@@ -593,9 +594,9 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
 
         KrajVidljiv = true;
         KrajSat = DateTime.Now.AddSeconds(sekundi).ToString("HH:mm:ss");
-        StatusKraj = $"Još {Podaci.Vreme.Dugo(sekundi)} · kraj u {KrajSat}";
-        var opis = $"{Podaci.Vreme.BrojPesama(preostale.Count + 1)} · još {Podaci.Vreme.Dugo(sekundi)}";
-        KrajOpis = prelaz > 0 ? $"{opis} · prelaz {prelaz:0.#} s" : $"{opis} · bez prelaza";
+        StatusKraj = Rec.T("Još {0} · kraj u {1}", Podaci.Vreme.Dugo(sekundi), KrajSat);
+        var opis = Rec.T("{0} · još {1}", Rec.Pesama(preostale.Count + 1), Podaci.Vreme.Dugo(sekundi));
+        KrajOpis = prelaz > 0 ? Rec.T("{0} · prelaz {1:0.#} s", opis, prelaz) : Rec.T("{0} · bez prelaza", opis);
     }
 
     // ---- output devices ----
@@ -655,14 +656,14 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
     private static readonly Brush PovrsinaEmitovanja = new SolidColorBrush(Color.FromRgb(0x22, 0x22, 0x2B));
     private static readonly Brush IvicaMira = new SolidColorBrush(Color.FromRgb(0x2E, 0x2E, 0x39));
 
-    [ObservableProperty] private string _statusEmitovanja = "Nije povezan";
+    [ObservableProperty] private string _statusEmitovanja = Rec.T("Nije povezan");
     [ObservableProperty] private Brush _bojaEmitovanja = SivaEmitovanja;
     [ObservableProperty] private Brush _pozadinaEmitovanja = PovrsinaEmitovanja;
     [ObservableProperty] private Brush _ivicaEmitovanja = IvicaMira;
     [ObservableProperty] private bool _emitovanjeUToku;
 
     /// <summary>„Uključi emitovanje“ until the user turns it on, then „Prekini emitovanje“.</summary>
-    public string NaslovEmitovanja => _stream.Zeljeno ? "Prekini emitovanje" : "Uključi emitovanje";
+    public string NaslovEmitovanja => _stream.Zeljeno ? Rec.T("Prekini emitovanje") : Rec.T("Uključi emitovanje");
 
     /// <summary>Tooltip: the server it goes to, and why it is not there when something is wrong.</summary>
     public string OpisEmitovanja
@@ -734,28 +735,28 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
         switch (_stream.Stanje)
         {
             case StreamStanje.NaEtru:
-                StatusEmitovanja = "Povezan na server";
+                StatusEmitovanja = Rec.T("Povezan na server");
                 BojaEmitovanja = ZelenaEmitovanja;
                 if (Tekuca is { } pesma) _stream.NaslovPesme(pesma.Izvodjac, pesma.Naslov);
                 break;
             case StreamStanje.Povezuje:
                 if (_stream.CekaZvuk)
                 {
-                    StatusEmitovanja = "Čeka muziku";
+                    StatusEmitovanja = Rec.T("Čeka muziku");
                     BojaEmitovanja = SivaEmitovanja;
                 }
                 else
                 {
-                    StatusEmitovanja = "Povezivanje…";
+                    StatusEmitovanja = Rec.T("Povezivanje…");
                     BojaEmitovanja = ZutaEmitovanja;
                 }
                 break;
             case StreamStanje.Greska:
-                StatusEmitovanja = _bioNaEtru ? "Veza pukla — vraćam se…" : "Nije se povezao…";
+                StatusEmitovanja = _bioNaEtru ? Rec.T("Veza pukla — vraćam se…") : Rec.T("Nije se povezao…");
                 BojaEmitovanja = CrvenaEmitovanja;
                 break;
             default:
-                StatusEmitovanja = _stream.Ponoc ? "Prekinuto u ponoć" : "Nije povezan";
+                StatusEmitovanja = _stream.Ponoc ? Rec.T("Prekinuto u ponoć") : Rec.T("Nije povezan");
                 BojaEmitovanja = SivaEmitovanja;
                 break;
         }

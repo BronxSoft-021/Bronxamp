@@ -21,7 +21,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         DispatcherUnhandledException += NaGresku;
-        AppDomain.CurrentDomain.UnhandledException += (_, a) => Dnevnik.Greska("NeobraÄ‘ena greÅ¡ka", a.ExceptionObject as Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, a) => Dnevnik.Greska("Neobrađena greška", a.ExceptionObject as Exception);
         TaskScheduler.UnobservedTaskException += (_, a) =>
         {
             Dnevnik.Greska("Zadatak", a.Exception);
@@ -112,7 +112,7 @@ public partial class App : Application
 
     private static void NaGresku(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        Dnevnik.Greska("GreÅ¡ka u prozoru", e.Exception);
+        Dnevnik.Greska("Greška u prozoru", e.Exception);
         e.Handled = true;
     }
 
