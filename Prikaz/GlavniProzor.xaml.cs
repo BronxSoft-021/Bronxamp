@@ -27,12 +27,6 @@ public partial class GlavniProzor : Window
     {
         _vm = vm;
         DataContext = vm;
-        vm.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName != nameof(GlavniVm.Strana)) return;
-            // Pages are built from templates when you switch, so their texts are translated again a moment later.
-            Dispatcher.BeginInvoke(() => PrevodSvega.Primeni(this), DispatcherPriority.Loaded);
-        };
         InitializeComponent();
         _akcenat = (Brush)FindResource("Akcenat");
 
