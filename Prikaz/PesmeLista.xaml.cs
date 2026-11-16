@@ -124,7 +124,7 @@ public partial class PesmeLista : UserControl
 
         var kolona = new GridViewColumn
         {
-            Header = k.Naziv,
+            Header = Rec.T(k.Naziv),
             Width = Podesavanja.SirineKolona.GetValueOrDefault(k.Kljuc, k.Sirina),
             CellTemplate = k.Kljuc switch
             {

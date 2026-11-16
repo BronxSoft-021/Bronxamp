@@ -397,7 +397,7 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         Poredak.Numerisi(redovi, static (r, broj) => r.Rb = broj);
         strana.Stavke = redovi;
         strana.Podnaslov = Rec.Pesama(redovi.Count);
-        strana.Prazno = redovi.Count == 0 ? "Ništa nije pronađeno." : null;
+        strana.Prazno = redovi.Count == 0 ? Rec.T("Ništa nije pronađeno.") : null;
         strana.OznaciTekucu(Plejer.Tekuca);
     }
 
