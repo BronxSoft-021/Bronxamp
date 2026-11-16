@@ -164,6 +164,20 @@ public sealed class ZvukPlejer : IDisposable
         }
     }
 
+    /// <summary>Turns the limiter on or off while the mixer runs — the setting in Settings calls this.</summary>
+    public void PodesiLimiter(bool ukljuci)
+    {
+        if (_mikser == 0 || ukljuci == (_limiter != 0)) return;
+        if (ukljuci)
+        {
+            _limiter = Limiter.Postavi(_mikser);
+            return;
+        }
+        Limiter.Ukloni(_mikser, _limiter);
+        _limiter = 0;
+    }
+
+
     public double Pozicija
     {
         get

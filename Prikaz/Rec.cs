@@ -361,6 +361,8 @@ public sealed class Rec : INotifyPropertyChanged
         ["Limiter (zaštita strima od klipovanja)"] = "Limiter (protects the stream from clipping)",
         ["Vrhovi iznad −1,5 dB se prigušuju. Ne menja dužinu pesme. Primenjuje se pri sledećem pokretanju."]
             = "Peaks above −1.5 dB are pressed down. It does not change the length of a song. Applied at the next start.",
+        ["Vrhovi iznad −1,5 dB se prigušuju. Ne menja dužinu pesme. Primenjuje se odmah pošto sačuvaš."]
+            = "Peaks above −1.5 dB are pressed down. It does not change the length of a song. Applied as soon as you save.",
         ["{0} stvari treba da se srede"] = "{0} things to sort out",
         ["Fali pesama za {0} do {1}."] = "Not enough songs for {0} until {1}.",
         ["Dan je složen. Pogledaj listu i pokreni ga."] = "The day is built. Check the list and start it.",

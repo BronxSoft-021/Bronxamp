@@ -61,7 +61,7 @@
 
         <TextBlock Text="OBRADA ZVUKA" Style="{StaticResource NaslovSekcije}" Margin="0,22,0,8" />
         <CheckBox x:Name="LimiterPolje" Content="Limiter (zaštita strima od klipovanja)" />
-        <TextBlock Text="Vrhovi iznad −1,5 dB se prigušuju. Ne menja dužinu pesme. Primenjuje se pri sledećem pokretanju."
+        <TextBlock Text="Vrhovi iznad −1,5 dB se prigušuju. Ne menja dužinu pesme. Primenjuje se odmah pošto sačuvaš."
                    Foreground="{StaticResource Mutan}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
 
         <TextBlock Text="EMITOVANJE NA ZENO.FM" Style="{StaticResource NaslovSekcije}" Margin="0,22,0,8" />

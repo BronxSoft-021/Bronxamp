@@ -321,6 +321,8 @@ public sealed partial class PlejerVm : ObservableObject, IDisposable
         if (_zvuk.Stanje == ZvukStanje.Svira) PustiPauza();
     }
 
+    public void PodesiLimiter(bool ukljuci) => _zvuk.PodesiLimiter(ukljuci);
+
     public void Stop()
     {
         _zvuk.Zaustavi();
