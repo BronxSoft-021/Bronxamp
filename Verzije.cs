@@ -33,6 +33,12 @@ public static class Verzije
     [
         new("beta", "16. 11. 2026.",
         [
+            "Limiter na izlazu miksera: vrhovi iznad −1,5 dB se prigušuju, pa glasna pesma i jingl ne mogu da klipuju strim. Ne menja dužinu pesme.",
+        ],
+        [
+        ]),
+        new("beta", "16. 11. 2026.",
+        [
             "Prelaz između pesama se podešava do 12 sekundi (ranije 5).",
         ],
         [

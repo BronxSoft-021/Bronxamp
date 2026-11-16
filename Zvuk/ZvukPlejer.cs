@@ -48,6 +48,8 @@ public sealed class ZvukPlejer : IDisposable
     private readonly SyncProcedure _naPrelazCuje;
 
     private int _mikser;
+    private int _limiter;   // limiter on the mixer (0 = none)
+
     private int _uredjaj;
     private int _posSync;
     private int _posSyncCuje;
@@ -128,6 +130,8 @@ public sealed class ZvukPlejer : IDisposable
         var zastavice = BassFlags.Float | MikserRed | BassFlags.MixerEnd;
         if (_dekodiranje) zastavice |= BassFlags.Decode;
         _mikser = BassMix.CreateMixerStream(Frekvencija, 2, zastavice);
+            _limiter = Limiter.Postavi(_mikser);
+
         if (_mikser == 0)
         {
             Dnevnik.Upisi($"Mikser: {Bass.LastError}");
