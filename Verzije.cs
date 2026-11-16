@@ -33,6 +33,12 @@ public static class Verzije
     [
         new("beta", "16. 11. 2026.",
         [
+            "Prelaz između pesama se podešava do 12 sekundi (ranije 5).",
+        ],
+        [
+        ]),
+        new("beta", "16. 11. 2026.",
+        [
         ],
         [
             "Pomoć, O programu i meniji na desni klik prevedeni su na engleski; rečnik je proširen.",

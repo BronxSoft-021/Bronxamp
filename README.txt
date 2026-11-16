@@ -26,6 +26,7 @@ Kako dalje:
 
 Verzije:
 Cela istorija je u programu: klik na verziju levo dole (Verzije.cs).
+- 0.89.74 beta  prelaz između pesama do 12 sekundi (ranije 5)
 - 0.88.74 beta  pomoć, O programu i meniji na desni klik prevedeni; rečnik proširen
 - 0.88.73 beta  jezik: srpski/engleski u Podešavanjima (menja odmah); prva faza prevoda — glavni prozor i Podešavanja
 - 0.87.73 beta  U etru kao klasičan plejer: Ctrl+A, Delete, desni klik „Obriši izabrano/sve“ i dugme „Obriši sve“

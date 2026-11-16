@@ -112,7 +112,7 @@ public partial class PodesavanjaProzor : Window
     private void NaSacuvaj(object sender, RoutedEventArgs e)
     {
         var p = _vm.Podesavanja;
-        p.Prelaz = Prelaz.Value;
+        p.Prelaz = Math.Clamp(Prelaz.Value, 0, 12);
         p.PrelazUAlbumima = PrelazUAlbumima.IsChecked == true;
         if (int.TryParse(Nedelja.Text, out int nedelja) && nedelja is >= 1 and <= 520) p.UpozorenjeNedelja = nedelja;
 

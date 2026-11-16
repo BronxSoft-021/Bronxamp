@@ -31,7 +31,7 @@
         <TextBlock Text="PRELAZ IZMEĐU PESAMA" Style="{StaticResource NaslovSekcije}" Margin="0,22,0,8" />
         <DockPanel>
             <TextBlock x:Name="PrelazTekst" DockPanel.Dock="Right" Width="46" TextAlignment="Right" Foreground="{StaticResource Tekst}" FontSize="13" VerticalAlignment="Center" />
-            <Slider x:Name="Prelaz" Style="{StaticResource Klizac}" Minimum="0" Maximum="5" TickFrequency="0.5" IsSnapToTickEnabled="True" ValueChanged="NaPrelaz" />
+            <Slider x:Name="Prelaz" Style="{StaticResource Klizac}" Minimum="0" Maximum="12" TickFrequency="0.5" IsSnapToTickEnabled="True" ValueChanged="NaPrelaz" />
         </DockPanel>
         <CheckBox x:Name="PrelazUAlbumima" Content="Prelaz i kad svira album (inače album ide bez prekida i bez prelaza)" Margin="0,8,0,0" />
 
