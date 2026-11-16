@@ -26,6 +26,9 @@ public sealed class Podesavanja
     /// <summary>"sr" or "en". The key of the text, not the text itself: see <see cref="Prikaz.Rec"/>.</summary>
     public string Jezik { get; set; } = "sr";
 
+    /// <summary>Limiter on the mixer: keeps peaks below full scale so the stream cannot clip.</summary>
+    public bool Limiter { get; set; }
+
     public string FolderSema { get; set; } = IzvorDana.PodrazumevanaSema;
     public string FolderJinglovi { get; set; } = IzvorDana.PodrazumevaniJinglovi;
     public double Tolerancija { get; set; } = 5;
