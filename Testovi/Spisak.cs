@@ -56,6 +56,8 @@ public static class Spisak
         ("glasnoća: pojačanje menja jačinu, ne dužinu pesme", GlasnocaTestovi.Pustanje),
         ("glasnoća: merenje se pamti uz pesmu, skeniranje ga ne briše", GlasnocaTestovi.Biblioteka),
         ("glasnoća: nadogradnja stare baze", GlasnocaTestovi.NadogradnjaGlasnoce),
+        ("pomoć: svaka tema postoji na srpskom i na engleskom", PomocTestovi.ObaJezika),
+        ("pomoć: naslov prozora i stavke menija prevedeni", PomocTestovi.NaslovPomoci),
     ];
 
     public static void Tvrdi(bool uslov, string poruka)

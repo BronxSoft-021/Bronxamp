@@ -26,6 +26,7 @@ Kako dalje:
 
 Verzije:
 Cela istorija je u programu: klik na verziju levo dole (Verzije.cs).
+- 0.91.76 beta  pomoć: naslov i stavke menija prevedeni, nova tema „Podešavanja“ i opisi limitera i normalizacije
 - 0.91.74 beta  normalizacija glasnoće: svaka pesma na istoj glasnoći (−14 LUFS), iz ReplayGain taga ili merenjem; dužina pesme ista
 - 0.90.74 beta  limiter na izlazu miksera (vrhovi do −1,5 dB) — zaštita strima od klipovanja
 - 0.89.74 beta  prelaz između pesama do 12 sekundi (ranije 5)

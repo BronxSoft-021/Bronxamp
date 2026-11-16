@@ -120,6 +120,13 @@ public sealed class Rec : INotifyPropertyChanged
         ["Pusti sledeće"] = "Play next",
         ["Dodaj u red"] = "Add to queue",
         ["Ukloni iz biblioteke"] = "Remove from library",
+        ["Dodaj u omiljeno"] = "Add to favourites",
+        ["Ukloni iz omiljenog"] = "Remove from favourites",
+        ["Isprazni red"] = "Clear the queue",
+        ["Otvori album"] = "Open the album",
+        ["Otvori folder"] = "Open the folder",
+        ["Preslušaj na slušalicama"] = "Cue on headphones",
+        ["Ukloni ceo album iz reda"] = "Remove the whole album from the queue",
         ["Pretraži: \"ekv 1983\", \"metal 90-e\"..."] = "Search: \"eqv 1983\", \"metal 90s\"...",
 
         // Queue and day
@@ -148,6 +155,7 @@ public sealed class Rec : INotifyPropertyChanged
         ["Uvećaj"] = "Maximise",
         ["Zatvori"] = "Close",
         ["Pomoć (F1)"] = "Help (F1)",
+        ["Pomoć"] = "Help",
         ["O programu"] = "About",
         ["Šta je novo"] = "What's new",
         ["Nije povezan"] = "Not connected",

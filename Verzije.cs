@@ -33,6 +33,13 @@ public static class Verzije
     [
         new("beta", "16. 11. 2026.",
         [
+        ],
+        [
+            "Pomoć: naslov se prevodi („Pomoć“ je na engleskom „Help“), nova tema „Podešavanja“ i opisi limitera i normalizacije glasnoće; prelaz do 12 sekundi i još po koja sitnica u tekstu.",
+            "Prevedene su i stavke menija na desni klik: dodaj u omiljeno, otvori album, otvori folder, preslušaj na slušalicama, isprazni red.",
+        ]),
+        new("beta", "16. 11. 2026.",
+        [
             "Normalizacija glasnoće: svaka pesma se pušta na ciljnoj glasnoći (−14 LUFS). Glasnoća se prvo čita iz ReplayGain taga, a gde ga nema fajl se izmeri; jačina se menja sa 50 ms uvodom, dužina pesme ostaje ista. U Podešavanjima je kućica, cilj i prag, i dugme „Izmeri biblioteku“ sa progresom.",
         ],
         [
