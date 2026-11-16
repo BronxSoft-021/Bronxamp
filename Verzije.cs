@@ -31,6 +31,12 @@ public static class Verzije
 {
     public static readonly Verzija[] Sve = Numerisi(
     [
+        new("beta", "16. 11. 2026.",
+        [
+            "Jezik: srpski ili engleski, bira se u Podešavanjima i menja odmah. Prva faza prevoda: glavni prozor (meni, biblioteka, red, prevoz, status) i Podešavanja.",
+        ],
+        [
+        ]),
         new("beta", "14. 11. 2026.",
         [
             "U etru radi kao klasičan plejer: Ctrl+A bira sve, Delete briše izabrano, desni klik nudi „Obriši izabrano“ i „Obriši sve“, a gore je i dugme „Obriši sve“ (dok dan traje, pesma koja svira i odsvirano ostaju).",

@@ -1,5 +1,6 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
+using Bronxamp.Podaci;
 using Bronxamp.Prikaz;
 using Bronxamp.Sistem;
 using Bronxamp.Vm;
@@ -20,7 +21,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         DispatcherUnhandledException += NaGresku;
-        AppDomain.CurrentDomain.UnhandledException += (_, a) => Dnevnik.Greska("Neobrađena greška", a.ExceptionObject as Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, a) => Dnevnik.Greska("NeobraÄ‘ena greÅ¡ka", a.ExceptionObject as Exception);
         TaskScheduler.UnobservedTaskException += (_, a) =>
         {
             Dnevnik.Greska("Zadatak", a.Exception);
@@ -37,6 +38,16 @@ public partial class App : Application
         }
 
         var uvod = PrikaziUvod(e.Args);
+
+        // The language has to be known before the menu and the window are built.
+        Rec.Jezik = Podesavanja.Ucitaj().Jezik;
+
+        // Every window and page is translated when it loads, and again when the language changes.
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
+            new RoutedEventHandler((s, _) => PrevodSvega.Primeni(s as DependencyObject)));
+        EventManager.RegisterClassHandler(typeof(System.Windows.Controls.UserControl), FrameworkElement.LoadedEvent,
+            new RoutedEventHandler((s, _) => PrevodSvega.Primeni(s as DependencyObject)));
+        Rec.Promenjen += PrevodSvega.PrimeniNaSve;
 
         Vm = new GlavniVm(Dispatcher, e.Args.Contains("--bez-zvuka"));
         var prozor = new GlavniProzor(Vm);
@@ -101,7 +112,7 @@ public partial class App : Application
 
     private static void NaGresku(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        Dnevnik.Greska("Greška u prozoru", e.Exception);
+        Dnevnik.Greska("GreÅ¡ka u prozoru", e.Exception);
         e.Handled = true;
     }
 

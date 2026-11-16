@@ -1,6 +1,7 @@
 <Window x:Class="Bronxamp.Prikaz.PodesavanjaProzor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:p="clr-namespace:Bronxamp.Prikaz"
         Title="Podešavanja" Width="600" SizeToContent="Height" WindowStyle="None" ResizeMode="NoResize"
         ShowInTaskbar="False" WindowStartupLocation="CenterOwner" FontFamily="Segoe UI"
         Background="{StaticResource Panel}" BorderBrush="{StaticResource PovrsinaHover}" BorderThickness="1"
@@ -12,7 +13,13 @@
                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-10,-14,0" />
         </Grid>
 
-        <TextBlock Text="FOLDERI SA MUZIKOM" Style="{StaticResource NaslovSekcije}" Margin="0,20,0,8" />
+        <TextBlock Text="{p:Prevod JEZIK / LANGUAGE}" Style="{StaticResource NaslovSekcije}" Margin="0,20,0,8" />
+        <ComboBox x:Name="Jezik" Style="{StaticResource PadajuciSpisak}" SelectionChanged="NaJezik">
+            <ComboBoxItem Tag="sr" Content="Srpski" />
+            <ComboBoxItem Tag="en" Content="English" />
+        </ComboBox>
+
+        <TextBlock Text="{p:Prevod FOLDERI SA MUZIKOM}" Style="{StaticResource NaslovSekcije}" Margin="0,20,0,8" />
         <ListBox x:Name="Folderi" Style="{StaticResource Lista}" MaxHeight="130" MinHeight="34" />
         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
             <Button Content="Dodaj folder" Style="{StaticResource Dugme}" Click="NaDodajFolder" Margin="0,0,8,0" />

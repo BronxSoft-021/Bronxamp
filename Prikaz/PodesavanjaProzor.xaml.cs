@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Bronxamp.Vm;
 using Microsoft.Win32;
@@ -12,12 +13,16 @@ public partial class PodesavanjaProzor : Window
 
     private readonly GlavniVm _vm = App.Vm;
 
+    private bool _jezikSpreman;
+
     public PodesavanjaProzor()
     {
         InitializeComponent();
         SourceInitialized += (_, _) => Sistem.ProzorStil.ZaobljeneIvice(this);
 
         var p = _vm.Podesavanja;
+        Jezik.SelectedItem = Jezik.Items.Cast<ComboBoxItem>().FirstOrDefault(i => (string?)i.Tag == p.Jezik) ?? Jezik.Items[0];
+        _jezikSpreman = true;
         OsveziFoldere();
         Prelaz.Value = p.Prelaz;
         PrelazUAlbumima.IsChecked = p.PrelazUAlbumima;
@@ -41,6 +46,14 @@ public partial class PodesavanjaProzor : Window
         Probno.IsChecked = p.StreamProbno;
 
         Verzija.Text = Verzije.Trenutna;
+    }
+
+    private void NaJezik(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_jezikSpreman || Jezik.SelectedItem is not ComboBoxItem { Tag: string jezik }) return;
+        _vm.Podesavanja.Jezik = jezik;
+        _vm.Podesavanja.Sacuvaj();
+        Rec.Jezik = jezik;
     }
 
     private void NaPrikaziLozinku(object sender, RoutedEventArgs e)

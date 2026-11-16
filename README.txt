@@ -26,6 +26,7 @@ Kako dalje:
 
 Verzije:
 Cela istorija je u programu: klik na verziju levo dole (Verzije.cs).
+- 0.88.73 beta  jezik: srpski/engleski u Podešavanjima (menja odmah); prva faza prevoda — glavni prozor i Podešavanja
 - 0.87.73 beta  U etru kao klasičan plejer: Ctrl+A, Delete, desni klik „Obriši izabrano/sve“ i dugme „Obriši sve“
 - 0.86.73 beta  dugme „Isprazni dan“ briše sve iz dana i ostavlja prazan spisak da ga sastaviš iznova
 - 0.85.73 beta  Red i Ostatak dana su samo tih prelaz iz crne u sivu (bez linija i sužavanja)

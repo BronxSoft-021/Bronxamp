@@ -23,6 +23,9 @@ public sealed class Podesavanja
     public Ponavljanje Ponavljanje { get; set; }
     public string Prikaz { get; set; } = "Omoti";
 
+    /// <summary>"sr" or "en". The key of the text, not the text itself: see <see cref="Prikaz.Rec"/>.</summary>
+    public string Jezik { get; set; } = "sr";
+
     public string FolderSema { get; set; } = IzvorDana.PodrazumevanaSema;
     public string FolderJinglovi { get; set; } = IzvorDana.PodrazumevaniJinglovi;
     public double Tolerancija { get; set; } = 5;

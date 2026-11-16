@@ -12,7 +12,10 @@ public enum PrikazBiblioteke { Omoti, Lista, AS, Godina }
 
 public sealed partial class NavStavka(string naziv, string ikona, Action akcija, string? boja = null) : ObservableObject
 {
-    public string Naziv { get; set; } = naziv;
+    /// <summary>The Serbian text; what is shown is its translation.</summary>
+    public string Kljuc { get; } = naziv;
+
+    public string Naziv { get; set; } = Prikaz.Rec.T(naziv);
     public string Ikona { get; } = ikona;
     public string? Boja { get; set; } = boja;
     public Emisija? Emisija { get; init; }
@@ -24,6 +27,7 @@ public sealed partial class NavStavka(string naziv, string ikona, Action akcija,
 
     public void Osvezi()
     {
+        Naziv = Prikaz.Rec.T(Kljuc);
         OnPropertyChanged(nameof(Naziv));
         OnPropertyChanged(nameof(Boja));
     }
@@ -152,6 +156,9 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
         Katalog.Promenjen += () => _ui.BeginInvoke(NaPromenuKataloga);
         Skener.Napredak += n => _ui.BeginInvoke(() =>
             StatusSkeniranja = n.Gotovo ? null : $"Skeniram {n.Obradjeno:N0} / {n.Ukupno:N0}");
+
+        // The menu holds plain strings, so they are set again when the language changes.
+        Bronxamp.Prikaz.Rec.Promenjen += () => _ui.BeginInvoke(OsveziJezik);
     }
 
     /// <summary>Removes them once, and only if nothing was ever put in them or played from them.</summary>
@@ -164,6 +171,14 @@ public sealed partial class GlavniVm : ObservableObject, IDisposable
                 Baza.ObrisiEmisiju(e.Id);
         Podesavanja.PocetneEmisijeUklonjene = true;
         Podesavanja.Sacuvaj();
+    }
+
+    /// <summary>Writes the menu again in the chosen language.</summary>
+    private void OsveziJezik()
+    {
+        foreach (var stavka in NavProgram.Concat(NavMuzika).Concat(NavIzvestaj)
+                     .Concat(PiluleBiblioteke).Concat(PiluleStatistike).Concat(NavEmisije))
+            stavka.Osvezi();
     }
 
     public async Task PokreniAsync()
