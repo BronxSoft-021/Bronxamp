@@ -287,6 +287,29 @@ public sealed class Rec : INotifyPropertyChanged
         ["Čeka"] = "Waiting",
         ["Dan nije pokrenut"] = "The day is not running",
 
+        // About and help
+        ["Verzija {0}"] = "Version {0}",
+        ["Muzički plejer za Windows. Program ništa ne šalje na internet, sve ostaje na ovom računaru."]
+            = "A music player for Windows. The program sends nothing to the internet; everything stays on this computer.",
+        ["KORIŠĆENE TEHNOLOGIJE"] = "TECHNOLOGIES USED",
+        ["osnova programa i prozori"] = "the program itself and its windows",
+        ["zvuk, prelazi, spektar"] = "sound, crossfades, spectrum",
+        ["FLAC i Opus fajlovi"] = "FLAC and Opus files",
+        ["slanje zvuka na Zeno.fm"] = "sending sound to Zeno.fm",
+        ["veza između programa i BASS-a"] = "the link between the program and BASS",
+        ["veza između programa i BASSenc-a"] = "the link between the program and BASSenc",
+        ["pretvaranje u MP3 za etar"] = "converting to MP3 for broadcast",
+        ["čitanje tagova i omota"] = "reading tags and covers",
+        ["biblioteka, emisije, istorija"] = "library, shows, history",
+        ["veza između programa i SQLite-a"] = "the link between the program and SQLite",
+        ["pomoć za izradu prozora"] = "help with building the windows",
+        ["LCD cifre"] = "LCD digits",
+        ["besplatno za nekomercijalnu upotrebu"] = "free for non-commercial use",
+        ["javno vlasništvo"] = "public domain",
+        ["Licence"] = "Licences",
+        ["Dodaj u emisiju"] = "Add to the show",
+        ["Nova emisija..."] = "New show…",
+
         // Common
         ["Dodaj"] = "Add",
         ["Ukloni"] = "Remove",

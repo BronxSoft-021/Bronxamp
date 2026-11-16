@@ -9,7 +9,7 @@ public static class KontekstMeni
 {
     public static MenuItem Stavka(string tekst, Action akcija, bool dostupno = true)
     {
-        var s = new MenuItem { Header = tekst, IsEnabled = dostupno };
+        var s = new MenuItem { Header = Rec.T(tekst), IsEnabled = dostupno };
         s.Click += (_, _) => akcija();
         return s;
     }
@@ -17,7 +17,7 @@ public static class KontekstMeni
     private static MenuItem PodmeniEmisija(IReadOnlyList<Pesma> pesme)
     {
         var vm = App.Vm;
-        var podmeni = new MenuItem { Header = "Dodaj u emisiju" };
+        var podmeni = new MenuItem { Header = Rec.T("Dodaj u emisiju") };
         foreach (var n in vm.NavEmisije)
             if (n.Emisija is { } emisija)
                 podmeni.Items.Add(Stavka(emisija.Ime, () => vm.DodajUEmisiju(emisija, pesme)));

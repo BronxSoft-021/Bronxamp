@@ -45,12 +45,12 @@ public sealed class OProgramuProzor : TamniDijalog
 
         var sadrzaj = new StackPanel { Margin = new Thickness(26, 6, 26, 22) };
         sadrzaj.Children.Add(Tekst("BronxSoft Bronxamp", 19, bold: true));
-        sadrzaj.Children.Add(Tekst("Verzija " + Verzije.Trenutna, 13, "Mutan"));
-        var opis = Tekst("Muzički plejer za Windows. Program ništa ne šalje na internet, sve ostaje na ovom računaru.", 13);
+        sadrzaj.Children.Add(Tekst(Rec.T("Verzija {0}", Verzije.Trenutna), 13, "Mutan"));
+        var opis = Tekst(Rec.T("Muzički plejer za Windows. Program ništa ne šalje na internet, sve ostaje na ovom računaru."), 13);
         opis.Margin = new Thickness(0, 10, 0, 0);
         sadrzaj.Children.Add(opis);
 
-        var naslov = Tekst("KORIŠĆENE TEHNOLOGIJE", 12, "Mutan", bold: true);
+        var naslov = Tekst(Rec.T("KORIŠĆENE TEHNOLOGIJE"), 12, "Mutan", bold: true);
         naslov.Margin = new Thickness(0, 20, 0, 8);
         sadrzaj.Children.Add(naslov);
         sadrzaj.Children.Add(Tabela());
@@ -84,8 +84,8 @@ public sealed class OProgramuProzor : TamniDijalog
             int red = tabela.RowDefinitions.Count;
             tabela.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             Celija(tabela, Tekst(ime, 13), red, 0);
-            Celija(tabela, Tekst(namena, 13, "Mutan"), red, 1);
-            Celija(tabela, Tekst(licenca, 12, "Mutan"), red, 2);
+            Celija(tabela, Tekst(Rec.T(namena), 13, "Mutan"), red, 1);
+            Celija(tabela, Tekst(Rec.T(licenca), 12, "Mutan"), red, 2);
         }
         return tabela;
     }
@@ -115,7 +115,7 @@ public sealed class OProgramuProzor : TamniDijalog
 public sealed class PomocProzor : TamniDijalog
 {
     /// <summary>A new feature the user has to learn gets a line here too.</summary>
-    public static readonly (string Naslov, string[] Stavke)[] Teme =
+    public static readonly (string Naslov, string[] Stavke)[] TemeSr =
     [
         ("Sastavi dan",
         [
@@ -238,6 +238,9 @@ public sealed class PomocProzor : TamniDijalog
             "U etru: Ctrl+A bira ceo dan, Delete briše izabrano, a desni klik i dugme „Obriši sve“ brišu sve (dok dan traje, pesma koja svira i odsvirano ostaju).",
         ]),
     ];
+
+    /// <summary>The help in the chosen language.</summary>
+    public static (string Naslov, string[] Stavke)[] Teme => Rec.EngleskiJezik ? PomocEngleski.Teme : TemeSr;
 
     private readonly List<Button> _dugmad = [];
     private readonly StackPanel _tekst = new() { Margin = new Thickness(24, 20, 24, 20) };

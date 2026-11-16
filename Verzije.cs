@@ -33,6 +33,12 @@ public static class Verzije
     [
         new("beta", "16. 11. 2026.",
         [
+        ],
+        [
+            "Pomoć, O programu i meniji na desni klik prevedeni su na engleski; rečnik je proširen.",
+        ]),
+        new("beta", "16. 11. 2026.",
+        [
             "Jezik: srpski ili engleski, bira se u Podešavanjima i menja odmah. Prva faza prevoda: glavni prozor (meni, biblioteka, red, prevoz, status) i Podešavanja.",
         ],
         [
